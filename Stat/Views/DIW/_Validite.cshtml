@@ -1,0 +1,209 @@
+﻿@model Stat.Models.IndexViewModel
+@{
+    ViewData["Title"] = "Modifier la Situation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var situation = ViewBag.Situation as Stat.Models.Situation;
+}
+<style>
+    .btn-custom {
+        width: 200px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(to right, rgba(7, 182, 128, 1) 50%, rgba(7, 182, 128, 0.8) 100%);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s ease;
+    }
+
+        .btn-custom:hover {
+            background: linear-gradient(to right, rgba(5, 150, 110, 1) 50%, rgba(5, 150, 110, 0.8) 100%);
+        }
+
+        .btn-custom i {
+            font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 10px
+        }
+</style>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="_Editer">Liste des Situations</a></li>
+        <li class="breadcrumb-item active">Modification</li>
+    </ol>
+
+    @if (situation?.RejectionHistories != null && situation.RejectionHistories.Any())
+    {
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Situation Rejetée</h4>
+            <p>Veuillez corriger les points suivants avant de soumettre à nouveau :</p>
+            <hr>
+            @foreach (var history in situation.RejectionHistories.OrderByDescending(h => h.RejectionDate))
+            {
+                <div class="mb-2">
+                    <p class="mb-1 fst-italic">"@history.Comment"</p>
+                    <small class="text-muted">Rejeté le: @history.RejectionDate.ToString("dd/MM/yyyy HH:mm")</small>
+                </div>
+            }
+        </div>
+    }
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <div style="text-align: right;">
+            <button type="button" id="import-excel-btn" class="btn-custom">
+                <i class="fas fa-file-excel me-2"></i>Importer depuis Excel
+            </button>
+            <input type="file" id="excel-importer" style="display: none;" accept=".xlsx, .xls, .csv" />
+        </div>
+        @if (Model?.CategorieIndicateurs != null && Model.IndicatorsWithCibles.Any())
+        {
+            <div class="accordion" id="indicatorAccordion">
+                @{
+                    var indicatorIndex = 0;
+                }
+                @foreach (var category in Model.CategorieIndicateurs)
+                {
+                    <div class="accordion-item">
+                        <h2 class="accordion-header"><button class="accordion-button bg-success bg-gradient text-white fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(category.IdCategIn)">@category.IntituleCategIn</button></h2>
+                        <div id="collapse@(category.IdCategIn)" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                @foreach (var indicator in Model.IndicatorsWithCibles.Where(i => i.IdCategIn == category.IdCategIn))
+                                {
+                                    var draft = (ViewBag.Drafts as Dictionary<string, Stat.Models.DeclarationDraft>)?.GetValueOrDefault(indicator.IdIn);
+                                    <div class="indicator-row border-bottom py-3">
+                                        <h5 class="h6 mb-3">@indicator.IntituleIn</h5>
+                                        <input type="hidden" name="indicators[@indicatorIndex].IndicatorId" value="@indicator.IdIn" />
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-md"><label class="form-label">Numérateur</label><input id="Numérateur@(indicatorIndex)" name="indicators[@indicatorIndex].Numerateur" class="form-control" type="number" value="@draft?.Numerateur" oninput="calculer(@indicatorIndex)" /></div>
+                                            <div class="col-md"><label class="form-label">Dénominateur</label><input id="Dénominateur@(indicatorIndex)" name="indicators[@indicatorIndex].Denominateur" class="form-control" type="number" value="@draft?.Denominateur" oninput="calculer(@indicatorIndex)" /></div>
+                                            <div class="col-md"><label class="form-label">Taux (%)</label><input id="Taux@(indicatorIndex)" name="indicators[@indicatorIndex].Taux" class="form-control" type="text" readonly /></div>
+                                            <div class="col-md"><label class="form-label">Cible</label><input id="Cible@(indicatorIndex)" name="indicators[@indicatorIndex].Cible" class="form-control" type="number" value="@indicator.CibleValue" readonly /></div>
+                                            <div class="col-md"><label class="form-label">Écart</label><input id="ecart@(indicatorIndex)" name="indicators[@indicatorIndex].Ecart" class="form-control" type="number" readonly /></div>
+                                        </div>
+                                    </div>
+                                    indicatorIndex++;
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <button type="submit" formaction="@Url.Action("EnregistrerBrouillon", "DIW", new { id = ViewBag.CurrentSituationId })" class="btn btn-secondary btn-lg"><i class="fas fa-save me-2"></i>Enregistrer </button>
+                    <button type="submit" formaction="@Url.Action("Confirmer", "DIW", new { id = ViewBag.CurrentSituationId })" class="btn btn-success btn-lg" onclick="return confirm('Êtes-vous sûr de vouloir confirmer et renvoyer cette situation pour validation?');"><i class="fas fa-check-circle me-2"></i>Confirmer et Envoyer/Renvoyer</button>
+                </div>
+            </div>
+        }
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // Note: The original 'calculer' function seems to have a bug with its selectors.
+        // It's corrected here to use ID selectors which match the HTML.
+        function calculer(indicatorIndex) {
+            const numInput = document.getElementById(`Numérateur${indicatorIndex}`);
+            const denomInput = document.getElementById(`Dénominateur${indicatorIndex}`);
+            const cibleInput = document.getElementById(`Cible${indicatorIndex}`);
+            const tauxOutput = document.getElementById(`Taux${indicatorIndex}`);
+            const ecartOutput = document.getElementById(`ecart${indicatorIndex}`);
+
+            const num = parseFloat(numInput.value) || 0;
+            const denom = parseFloat(denomInput.value) || 0;
+            const cible = parseFloat(cibleInput.value) || 0;
+
+            let taux = 0;
+            let ecart = 0;
+            if (denom !== 0) {
+                taux = (num / denom) * 100;
+                ecart = taux - cible;
+            } else {
+                ecart = 0 - cible;
+            }
+            tauxOutput.value = taux.toFixed(2);
+            ecartOutput.value = ecart.toFixed(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const importBtn = document.getElementById('import-excel-btn');
+            const fileInput = document.getElementById('excel-importer');
+
+            // Trigger initial calculation for all rows that have draft data
+            document.querySelectorAll('.indicator-row').forEach((row, index) => {
+                const numInput = row.querySelector('input[name$=".Numerateur"]');
+                if (numInput && numInput.value) {
+                    calculer(index);
+                }
+            });
+
+            importBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) { return; }
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    const excelDataMap = new Map();
+                    let dataStarted = false;
+                    for (const row of jsonData) {
+                        if (row[0] && row[0].toString().trim() === 'Indicateur') {
+                            dataStarted = true;
+                            continue;
+                        }
+                        if (!dataStarted || !row[0]) continue;
+                        const indicatorName = row[0].toString().trim().replace(/\n/g, ' ');
+                        const numerator = parseFloat(row[1]) || 0;
+                        const denominator = parseFloat(row[2]) || 0;
+                        excelDataMap.set(indicatorName, { numerator, denominator });
+                    }
+
+                    let updatedCount = 0;
+                    // --- FIX: Changed selector to match the page's DIV structure ---
+                    document.querySelectorAll('.indicator-row').forEach((row, index) => {
+                        // --- FIX: Changed selector to find the H5 tag ---
+                        const formIndicatorCell = row.querySelector('h5');
+                        if (!formIndicatorCell) return;
+
+                        const formIndicatorName = formIndicatorCell.innerText.trim();
+                        if (excelDataMap.has(formIndicatorName)) {
+                            const data = excelDataMap.get(formIndicatorName);
+                            const numInput = row.querySelector('input[name$=".Numerateur"]');
+                            const denomInput = row.querySelector('input[name$=".Denominateur"]');
+
+                            if (numInput && denomInput) {
+                                numInput.value = data.numerator;
+                                denomInput.value = data.denominator;
+
+                                // Call calculer with the correct index for this row
+                                calculer(index);
+                                updatedCount++;
+                            }
+                        }
+                    });
+                    alert(`${updatedCount} indicateur(s) importé(s) avec succès !`);
+                };
+                reader.readAsArrayBuffer(file);
+                e.target.value = '';
+            });
+        });
+    </script>
+}

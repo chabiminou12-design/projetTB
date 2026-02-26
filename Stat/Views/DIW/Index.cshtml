@@ -1,0 +1,234 @@
+﻿@model Stat.Models.DashboardViewModel
+@using Stat.Services
+@inject UserInfoService UserInfoSvc
+@{
+    ViewData["Title"] = "Tableau de bord";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var layoutData = await UserInfoSvc.GetLayoutUserDataAsync();
+
+    var structureName = layoutData?.StructureName ?? " ";
+    var today = DateTime.Now;
+
+}
+@if (ViewBag.ShowRapportUpload == true)
+{
+    <div class="card mb-4 border-left-warning shadow">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Rapport Obligatoire</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        Veuillez soumettre votre rapport @(today.Month == 7 || today.Month == 8 ? "Trimestriel" : "Annuel")
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadRapportModal">
+                        <i class="fas fa-upload fa-2x text-gray-300"></i> Télécharger
+                    </button>
+                </div>
+            </div>
+        </div>
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+                @TempData["ErrorMessage"]
+
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+}
+
+<div class="modal fade" id="uploadRapportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form asp-action="UploadRapport" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="type" value="@(today.Month == 7 || today.Month == 8 ? "Trimestriel" : "Annuel")" />
+            <input type="hidden" name="year" value="@(today.Month == 1 || today.Month == 2 ? today.Year - 1 : today.Year)" />
+            <div class="modal-content">
+                <div class="modal-header"><h5>Télécharger le Rapport</h5></div>
+                <div class="modal-body">
+                    <input type="file" name="rapportFile" class="form-control" accept=".pdf,.doc,.docx" required />
+                    <small class="text-muted">Formats acceptés: PDF, DOC, DOCX</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Envoyer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        @TempData["SuccessMessage"]
+
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Espace Direction de Wilaya @structureName</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Tableau de bord</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4"><div class="card text-white mb-4" style="background: var(--primary-gradient);"><div class="card-body"><div class="fs-6 fw-bold">@Model.GrandTotalSituations</div><div class="fs-15">Total des Situations Créées</div></div><div class="card-footer d-flex align-items-center justify-content-between"><a class="small text-white stretched-link " asp-action="_Editer">Voir les détails</a><div class="small text-white"><i class="fas fa-angle-right"></i></div></div></div></div>
+        <div class="col-xl-3 col-md-6 mb-4"><div class="card bg-warning text-white mb-4"><div class="card-body"><div class="fs-6 fw-bold">@Model.SituationsInProgress</div><div class="fs-15">Situations en Cours / Rejetées</div></div><div class="card-footer d-flex align-items-center justify-content-between"><a class="small text-white stretched-link " asp-action="_Editer">Voir les détails</a><div class="small text-white"><i class="fas fa-angle-right"></i></div></div></div></div>
+        <div class="col-xl-3 col-md-6 mb-4"><div class="card bg-primary text-white mb-4"><div class="card-body"><div class="fs-6 fw-bold">@Model.SituationsPendingDRI</div><div class="fs-15">En Attente de Validation DRI</div></div><div class="card-footer d-flex align-items-center justify-content-between"><a class="small text-white stretched-link" asp-action="_Editer">Voir les détails</a><div class="small text-white"><i class="fas fa-angle-right"></i></div></div></div></div>
+        <div class="col-xl-3 col-md-6 mb-4"><div class="card bg-success text-white mb-4"><div class="card-body"><div class="fs-6 fw-bold">@Model.SituationsValidated</div><div class="fs-15">Situations Validées</div></div><div class="card-footer d-flex align-items-center justify-content-between"><a class="small text-white stretched-link" asp-action="_Editer">Voir les détails</a><div class="small text-white"><i class="fas fa-angle-right"></i></div></div></div></div>
+    </div>
+
+
+    @foreach (var yearSummary in Model.YearlySummaries)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0">Statistiques de l'Année @yearSummary.Year</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @if (yearSummary.Charts.Any())
+                    {
+                        @foreach (var chart in yearSummary.Charts)
+                        {
+                            <div class="col-xl-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <i class="fas fa-chart-bar me-1"></i>
+                                        @chart.CategoryName
+                                    </div>
+                                    <div class="card-body">
+                                        <select class="form-select form-select-sm mb-2 chart-indicator-filter" data-chart-id="@chart.ChartId">
+                                            <option value="all">-- Tous les indicateurs --</option>
+                                            @foreach (var label in chart.Labels)
+                                            {
+                                                <option value="@label">@label</option>
+                                            }
+                                        </select>
+                                        <canvas id="@chart.ChartId"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-center text-muted">Aucune donnée de performance confirmée pour cette année.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+            Chart.defaults.global.defaultFontColor = '#292b2c';
+
+            // --- NOUVELLE LOGIQUE POUR LES GRAPHIQUES FILTRABLES ---
+            window.myCharts = window.myCharts || {};
+            window.originalChartData = window.originalChartData || {};
+
+            function updateChart(chartId, selectedIndicator) {
+                const chart = window.myCharts[chartId];
+                const originalData = window.originalChartData[chartId];
+                if (!chart || !originalData) return;
+
+                if (selectedIndicator === 'all') {
+                    chart.data.labels = originalData.labels;
+                    chart.data.datasets.forEach((dataset, i) => { dataset.data = originalData.datasets[i].data; });
+                } else {
+                    const index = originalData.labels.indexOf(selectedIndicator);
+                    if (index > -1) {
+                        chart.data.labels = [originalData.labels[index]];
+                        chart.data.datasets.forEach((dataset, i) => { dataset.data = [originalData.datasets[i].data[index]]; });
+                    }
+                }
+                chart.update();
+            }
+
+            // Initialisation des graphiques de performance annuelle
+        @foreach (var yearSummary in Model.YearlySummaries)
+        {
+            @foreach (var chart in yearSummary.Charts)
+            {
+                <text>
+                                                         const chartId_@{
+                        @chart.ChartId.Replace("-", "")
+                    } = "@chart.ChartId";
+                    const ctx_@{
+                        @chart.ChartId.Replace("-", "")
+                    } = document.getElementById(chartId_@{
+                        @chart.ChartId.Replace("-", "")
+                    });
+                    if (ctx_@{
+                        @chart.ChartId.Replace("-", "")
+                    }) {
+                    window.originalChartData[chartId_@{
+                        @chart.ChartId.Replace("-", "")
+                    }] = {
+                        labels: @Html.Raw(Json.Serialize(chart.Labels)),
+                            datasets: [
+                                { label: 'Performance Atteinte', data: @Html.Raw(Json.Serialize(chart.PerformanceJusquaCible)) },
+                                { label: 'Écart Négatif (Manquant)', data: @Html.Raw(Json.Serialize(chart.EcartNegatif)) },
+                                { label: 'Dépassement de la Cible', data: @Html.Raw(Json.Serialize(chart.DepassementCible)) }
+                            ]
+                    };
+
+                    window.myCharts[chartId_@{
+                        @chart.ChartId.Replace("-", "")
+                    }] = new Chart(ctx_@{
+                        @chart.ChartId.Replace("-", "")
+                    }, {
+                            type: 'horizontalBar',
+                            data: {
+                                labels: @Html.Raw(Json.Serialize(chart.Labels)),
+                                tauxAtteints: @Html.Raw(Json.Serialize(chart.TauxAtteintData)),
+                                cibles: @Html.Raw(Json.Serialize(chart.CibleData)),
+                                datasets: [
+                                    { label: 'Performance Atteinte', backgroundColor: 'rgba(54, 162, 235, 0.8)', data: @Html.Raw(Json.Serialize(chart.PerformanceJusquaCible)) },
+                                    { label: 'Écart Négatif (Manquant)', backgroundColor: 'rgba(255, 159, 64, 0.8)', data: @Html.Raw(Json.Serialize(chart.EcartNegatif)) },
+                                    { label: 'Dépassement de la Cible', backgroundColor: 'rgba(75, 192, 192, 0.8)', data: @Html.Raw(Json.Serialize(chart.DepassementCible)) }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                tooltips: {
+                                    callbacks: {
+                                        footer: function (tooltipItems, data) {
+                                            const originalLabels = window.originalChartData[chartId_@{
+                        @chart.ChartId.Replace("-", "")
+                    }].labels;
+                                        const currentLabel = data.labels[tooltipItems[0].index];
+                                        const originalIndex = originalLabels.indexOf(currentLabel);
+                                        let taux = data.tauxAtteints[originalIndex];
+                                        let cible = data.cibles[originalIndex];
+                                        let ecart = taux - cible;
+                                        return [`Taux Atteint: ${taux.toFixed(2)}%`, `Cible: ${cible.toFixed(2)}%`, `Écart: ${ecart.toFixed(2)}%`];
+                                    }
+                                }
+                            },
+                            scales: { xAxes: [{ stacked: true, ticks: { callback: function (v) { return v + "%" } } }], yAxes: [{ stacked: true }] }
+                        }
+                                                        });
+                                                    }
+                </text>
+            }
+        }
+
+            // Ajouter les écouteurs d'événements à tous les menus déroulants de filtre
+            document.querySelectorAll('.chart-indicator-filter').forEach(select => {
+                select.addEventListener('change', function () {
+                    const chartId = this.dataset.chartId;
+                    const selectedIndicator = this.value;
+                    updateChart(chartId, selectedIndicator);
+                });
+            });
+                    });
+    </script>
+}

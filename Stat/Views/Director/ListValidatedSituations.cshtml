@@ -1,0 +1,65 @@
+﻿@using Stat.Models.ViewModels 
+@using Stat.Helpers
+@model PaginatedList<ValidatedSituationViewModel>
+@{
+    ViewData["Title"] = "Situations Validées";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord</a></li>
+        <li class="breadcrumb-item active">Situations Validées</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-table me-1"></i>Liste des Situations</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Période</th>
+                            <th>Structure</th>
+                            <th>Type</th>
+                            <th>Date Validation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Period</td>
+                                <td>@item.StructureName</td>
+                                <td>@item.SituationType</td>
+                                <td>@item.ValidationDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-center">
+                                    <a asp-action="ConsulteSituation" asp-route-id="@item.SituationId" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> Consulter
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+            <nav>
+                <ul class="pagination justify-content-end">
+                    <li class="page-item @prevDisabled">
+                        <a asp-action="ListValidatedSituations" asp-route-pageNumber="@(Model.PageIndex - 1)" class="page-link">Précédent</a>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a asp-action="ListValidatedSituations" asp-route-pageNumber="@(Model.PageIndex + 1)" class="page-link">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

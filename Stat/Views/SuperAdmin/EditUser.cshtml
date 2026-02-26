@@ -1,0 +1,73 @@
+﻿@model Stat.Models.ViewModels.EditUserViewModel
+@{
+    ViewData["Title"] = $"Modifier l'utilisateur: {Model.User.FirstNmUser} {Model.User.LastNmUser}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="ListAllUsers">Liste de tous les Utilisateurs</a></li>
+        <li class="breadcrumb-item active">Modifier</li>
+    </ol>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="EditUser" method="post">
+                <input type="hidden" asp-for="User.ID_User" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.User_name" class="form-label">Nom d'utilisateur</label>
+                        <input asp-for="User.User_name" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.Statut" class="form-label">Rôle</label>
+                        <input type="hidden" asp-for="User.Statut" />
+                        <input type="text" class="form-control-plaintext" value="@(Model.StatutOptions.FirstOrDefault(o => o.Value == Model.User.Statut.ToString())?.Text ?? "Inconnu")" readonly />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.FirstNmUser" class="form-label">Prénom</label>
+                        <input asp-for="User.FirstNmUser" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.LastNmUser" class="form-label">Nom</label>
+                        <input asp-for="User.LastNmUser" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.MailUser" class="form-label">Email</label>
+                        <input asp-for="User.MailUser" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.TelUser" class="form-label">Téléphone</label>
+                        <input asp-for="User.TelUser" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        
+                        <input type="hidden" asp-for="User.CodeDIW" />
+                        
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                    <a asp-action="ListAllUsers" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

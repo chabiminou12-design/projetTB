@@ -1,0 +1,293 @@
+﻿@using Stat.Helpers
+@using Stat.Services
+@using Stat.Models.Enums
+@inject UserInfoService UserInfoService
+@inject INotificationService NotificationService
+@{
+    // Get all user data with one simple call to our new service
+    var layoutData = await UserInfoService.GetLayoutUserDataAsync();
+    var currentUser = layoutData?.CurrentUser;
+    var roleTitle = layoutData?.RoleTitle ?? "Statistiques";
+
+    // ✨ FIX: This block was missing. It fetches notifications and defines the 'totalNotifications' variable.
+    var notifications = await NotificationService.GetNotificationsAsync();
+    var totalNotifications = notifications.Alerts.Count + notifications.DiwSubmissionAlerts.Count;
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @roleTitle</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/simple-datatables/style.css" />
+    <link rel="stylesheet" href="~/lib/datatables.net-bs5/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="~/lib/datatables.net-rowgroup-bs5/css/rowGroup.bootstrap5.min.css" />
+    <link rel="stylesheet" href="~/lib/toastr.js/toastr.min.css" />
+    <link href="~/css/theme.css" rel="stylesheet" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+    <style>
+        .notification-bell-wrapper {
+            position: relative;
+            font-size: 1.5rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            padding: 3px 6px;
+            border-radius: 50%;
+            background: red;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .popover.notification-popover {
+            max-width: none; /* Override Bootstrap's max-width */
+            width: 380px; /* Set a fixed, professional width */
+            border-radius: 0.5rem;
+        }
+
+            .popover.notification-popover .popover-body {
+                padding: 0;
+            }
+
+        .notification-popover-content {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: block;
+            padding: 10px 15px;
+            border-bottom: 1px solid #dee2e6;
+            text-decoration: none;
+            color: #212529;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+
+            .notification-item:last-child {
+                border-bottom: none;
+            }
+
+            .notification-item:hover {
+                background-color: #f8f9fa;
+            }
+
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <div id="app-wrapper">
+        <aside id="app-sidebar">
+            <div class="sidebar-header">
+                <img src="~/assets/img/logoimpot.jpg" alt="Logo" />
+                <h6 class="m-0">@roleTitle.ToUpper()</h6>
+            </div>
+
+            @if (currentUser != null)
+            {
+                @if (currentUser.Statut == (int)UserRole.Admin)
+                {
+                    <partial name="_AdminSidebarPartial" />
+                }
+                else if (currentUser.Statut == (int)UserRole.DC)
+                {
+                    <partial name="_DCSidebarPartial" />
+                }
+                else if (currentUser.Statut == (int)UserRole.DRI)
+                {
+                    <partial name="_DRISidebarPartial" />
+                }
+                else if (currentUser.Statut == (int)UserRole.DIW)
+                {
+                    <partial name="_DIWSidebarPartial" />
+                }
+                else if (currentUser.Statut == (int)UserRole.Director)
+                {
+                    <partial name="_DirectorSidebarPartial" />
+                }
+            }
+        </aside>
+
+        <div id="app-content-wrapper">
+            <header id="app-topnav">
+                <i class="fas fa-bars sidebar-toggle" id="sidebarToggle"></i>
+                <ul class="navbar-nav ms-auto align-items-center flex-row">
+                    @if (totalNotifications > 0)
+                    {
+                        <li class="nav-item me-3">
+                            <a id="notificationBell" class="nav-link notification-bell-wrapper" href="#" role="button" data-bs-toggle="popover">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">@totalNotifications</span>
+                            </a>
+                        </li>
+                    }
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @if (currentUser != null)
+                            {
+                                @if (!string.IsNullOrEmpty(currentUser.ProfilePictureUrl))
+                                {
+                                    <img src="@currentUser.ProfilePictureUrl" class="initials-avatar me-2">
+                                }
+                                else
+                                {
+                                    <div class="initials-avatar me-2" style="background-color: @AvatarHelper.GetBackgroundColor(currentUser.FirstNmUser)">
+                                        @AvatarHelper.GetInitials(currentUser.FirstNmUser)
+                                    </div>
+                                }
+                                <span>@currentUser.User_name</span>
+                            }
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-controller="Access" asp-action="ChangePassword"><i class="fas fa-key fa-fw me-2"></i>Changer le mot de passe</a></li>
+                            <li><a class="dropdown-item" asp-action="ChangePicture"><i class="fas fa-camera fa-fw me-2"></i>Changer ma photo</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="px-2">
+                                <a class="btn btn-sm btn-outline-danger w-100" asp-controller="Access" asp-action="LogOut">
+                                    <i class="fas fa-sign-out-alt fa-fw me-2"></i>Se déconnecter
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </header>
+
+            <main id="app-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <div id="notificationContent" class="d-none">
+        <div class="list-group list-group-flush notification-popover-content">
+            @if (notifications.IsDRI && notifications.Alerts.Any())
+            {
+                <div class="list-group-item list-group-item-light fw-bold small text-muted">Notifications Personnelles</div>
+            }
+
+            @if (notifications.Alerts.Any())
+            {
+                @foreach (var alert in notifications.Alerts)
+                {
+                    <div class="list-group-item list-group-item-@alert.AlertType notification-item">@alert.Message</div>
+                }
+            }
+
+            @if (notifications.IsDRI && notifications.DiwSubmissionAlerts.Any())
+            {
+                <div class="list-group-item list-group-item-light fw-bold small text-muted">Alertes de Soumission DIW</div>
+                @foreach (var alert in notifications.DiwSubmissionAlerts)
+                {
+                    <div class="list-group-item list-group-item-@alert.AlertType notification-item">@alert.Message</div>
+                }
+            }
+
+            @if (totalNotifications == 0)
+            {
+                <div class="list-group-item notification-item text-muted">Aucune nouvelle notification</div>
+            }
+        </div>
+    </div>
+
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/font-awesome/js/all.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="https://cdn.datatables.net/rowgroup/1.4.0/js/dataTables.rowGroup.min.js"></script>
+
+    <script src="https://cdn.datatables.net/rowgroup/1.4.0/js/rowGroup.bootstrap5.min.js"></script>
+
+    <script src="~/lib/toastr.js/toastr.min.js"></script>
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    <script>
+        toastr.options = { "closeButton": true, "progressBar": true, "positionClass": "toast-top-right", "timeOut": "5000" };
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var notificationBell = document.getElementById('notificationBell');
+
+            if (notificationBell) {
+                // ✨ FIX: Read the HTML content from the hidden div first
+                var notificationContentHtml = document.getElementById('notificationContent').innerHTML;
+
+                new bootstrap.Popover(notificationBell, {
+                    html: true,
+                    placement: 'bottom',
+                    title: 'Notifications',
+                    // ✨ FIX: Pass the HTML string, not the element
+                    content: notificationContentHtml,
+                    sanitize: false,
+                    customClass: 'notification-popover'
+                });
+            }
+        });
+    </script>
+</body>
+<script>
+    // --- CONFIGURATION ---
+    // Délai en minutes (Doit correspondre à Program.cs)
+    var minutesInactivity = 30;
+
+    // Conversion en millisecondes + petite marge de sécurité (5 secondes)
+    // La marge permet d'éviter que le client redirige AVANT que le serveur n'ait réellement expiré la session
+    var timeLimit = (minutesInactivity * 60 * 1000) + 5000;
+
+    // URL de Login générée par Razor
+    var loginUrl = '@Url.Action("Login", "Access")';
+
+    // --- LOGIQUE DE VÉRIFICATION ---
+
+    // On stocke le moment exact de la dernière action (Timestamp)
+    var lastActivityTime = Date.now();
+
+    // Fonction simple qui met à jour l'heure de la dernière activité
+    function resetTimer() {
+        lastActivityTime = Date.now();
+    }
+
+    // Fonction de vérification (exécutée en boucle)
+    function checkInactivity() {
+        var currentTime = Date.now();
+        var timeSinceLastActivity = currentTime - lastActivityTime;
+
+        // Si le temps écoulé est supérieur à la limite
+        if (timeSinceLastActivity > timeLimit) {
+            console.log("Inactivité détectée (" + (timeSinceLastActivity / 1000) + "s). Redirection...");
+            window.location.href = loginUrl;
+        }
+    }
+
+    // --- ÉCOUTEURS D'ÉVÉNEMENTS ---
+
+    // Vérifier l'inactivité toutes les 5 secondes
+    // (Beaucoup plus léger pour le navigateur que de resetter un timer à chaque mouvement de souris)
+    setInterval(checkInactivity, 5000);
+
+    // Mettre à jour le timestamp sur les actions de l'utilisateur
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('click', resetTimer);
+    window.addEventListener('keypress', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+    window.addEventListener('touchstart', resetTimer); // Pour tablettes/mobiles
+
+</script>
+</html>

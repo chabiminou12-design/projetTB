@@ -1,0 +1,60 @@
+﻿@model Stat.Models.Indicateurs_DE_PERFORMANCE_OPERATIONNELS
+@{
+    ViewData["Title"] = "Ajouter un Indicateur DRI";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Nouveau Indicateur</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="ListIndicateursDri">Indicateurs DRI</a></li>
+        <li class="breadcrumb-item active">Ajout</li>
+    </ol>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 class="mb-0">Détails de l'Indicateur</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="AddIndicateurDri" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="IntituleIn" class="form-label fw-bold">Intitulé de l'indicateur</label>
+                            <textarea asp-for="IntituleIn" class="form-control" rows="3" placeholder="Saisir le libellé complet..."></textarea>
+                            <span asp-validation-for="IntituleIn" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="IdCategIn" class="form-label fw-bold">Catégorie / Axe</label>
+                            <select asp-for="IdCategIn" class="form-select" asp-items="ViewBag.Categories">
+                                <option value="">-- Sélectionner une catégorie --</option>
+                            </select>
+                            <span asp-validation-for="IdCategIn" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="ListIndicateursDri" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-1"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

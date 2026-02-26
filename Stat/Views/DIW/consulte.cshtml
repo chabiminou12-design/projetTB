@@ -1,0 +1,77 @@
+﻿@model Stat.Models.IndexViewModel
+@{
+    ViewData["Title"] = "Consulter la Déclaration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="_Editer">Editer Situations</a></li>
+        <li class="breadcrumb-item active">Détails Confirmés</li>
+    </ol>
+
+    @if (Model?.CategorieIndicateurs != null && Model.IndicatorsWithCibles.Any())
+    {
+        <div class="accordion" id="confirmedIndicatorAccordion">
+            @foreach (var category in Model.CategorieIndicateurs)
+            {
+                var indicatorsForCategory = Model.IndicatorsWithCibles.Where(ind => ind.IdCategIn == category.IdCategIn).ToList();
+                if (indicatorsForCategory.Any())
+                {
+                    var collapseId = $"collapse{category.IdCategIn}";
+                    var headerId = $"header{category.IdCategIn}";
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="@headerId">
+                            <button class="accordion-button bg-success bg-gradient text-white fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true" aria-controls="@collapseId">
+                                @category.IntituleCategIn
+                            </button>
+                        </h2>
+                        <div id="@collapseId" class="accordion-collapse collapse show" aria-labelledby="@headerId">
+                            <div class="accordion-body">
+                                @foreach (var indicator in indicatorsForCategory)
+                                {
+                                    <div class="card card-body mb-3">
+                                        <h5 class="h6 card-title">@indicator.IntituleIn</h5>
+                                        <div class="row">
+                                            <div class="col">
+                                                <label class="small text-muted">Numérateur</label>
+                                                <p class="fw-bold">@indicator.Numerateur</p>
+                                            </div>
+                                            <div class="col">
+                                                <label class="small text-muted">Dénominateur</label>
+                                                <p class="fw-bold">@indicator.Denominateur</p>
+                                            </div>
+                                            <div class="col">
+                                                <label class="small text-muted">Taux (%)</label>
+                                                <p class="fw-bold">@indicator.Taux?.ToString("F2")</p>
+                                            </div>
+                                            <div class="col">
+                                                <label class="small text-muted">Cible</label>
+                                                <p class="fw-bold">@indicator.CibleValue.ToString("F2")</p>
+                                            </div>
+                                            <div class="col">
+                                                <label class="small text-muted">Écart</label>
+                                                <p class="fw-bold">@indicator.Ecart?.ToString("F2")</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="mt-4">
+            <a asp-action="_Editer" asp-controller="DIW" class="btn btn-secondary btn-lg">Retour à la liste</a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Aucune donnée confirmée disponible.</div>
+    }
+</div>

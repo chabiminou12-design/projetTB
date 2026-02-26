@@ -1,0 +1,40 @@
+﻿@model List<Stat.Models.User>
+@{
+    ViewData["Title"] = "Gérer les Administrateurs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord Super Admin</a></li>
+        <li class="breadcrumb-item active">Liste des Administrateurs</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            Sélectionnez un administrateur pour gérer ses permissions
+        </div>
+        <div class="list-group list-group-flush">
+            @foreach (var admin in Model)
+            {
+                // Do not show the Super Admin in the list of users to manage
+                if (admin.ID_User == (string)ViewBag.SuperAdminId) { continue; }
+
+                <a asp-action="ManagePermissions" asp-route-id="@admin.ID_User" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">@admin.FirstNmUser @admin.LastNmUser</h6>
+                        <small class="text-muted">@admin.User_name</small>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            }
+        </div>
+    </div>
+</div>

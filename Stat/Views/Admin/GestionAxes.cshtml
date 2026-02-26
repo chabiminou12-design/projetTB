@@ -1,0 +1,121 @@
+﻿@model IEnumerable<Stat.Models.CategorieIndicateur>
+@{
+    ViewData["Title"] = "Gestion des Axes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Gestion des Axes</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-plus me-1"></i>Ajouter un nouvel Axe</div>
+        <div class="card-body">
+            <form asp-action="AddAxe" method="post" class="row g-3">
+                @Html.AntiForgeryToken()
+                <div class="col-md-4">
+                    <label class="form-label">ID de l'Axe (ex: AXE1)</label>
+                    <input type="text" name="idCategIn" class="form-control" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Intitulé de l'Axe</label>
+                    <input type="text" name="intituleCategIn" class="form-control" required />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><i class="fas fa-list me-1"></i>Liste des Axes Existants</div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Intitulé</th>
+                        <th style="width: 150px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.IdCategIn</td>
+                            <td>
+                                <span id="label-@item.IdCategIn">@item.IntituleCategIn</span>
+                                <input type="text" id="input-@item.IdCategIn" value="@item.IntituleCategIn" class="form-control d-none" />
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning btn-edit" data-id="@item.IdCategIn">Renommer</button>
+                                <button class="btn btn-sm btn-success btn-save d-none" data-id="@item.IdCategIn">Sauver</button>
+
+                                <form asp-action="DeleteAxe" asp-route-id="@item.IdCategIn" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet axe ?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    document.getElementById(`label-${id}`).classList.add('d-none');
+                    document.getElementById(`input-${id}`).classList.remove('d-none');
+                    this.classList.add('d-none');
+                    this.closest('td').querySelector('.btn-save').classList.remove('d-none');
+                });
+            });
+
+            document.querySelectorAll('.btn-save').forEach(button => {
+                button.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const intitule = document.getElementById(`input-${id}`).value;
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                    fetch(`/Admin/EditAxe?id=${id}&intitule=${encodeURIComponent(intitule)}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        }
+                    }).then(response => response.json()).then(data => {
+                        if (data.success) {
+                            document.getElementById(`label-${id}`).textContent = intitule;
+                            document.getElementById(`label-${id}`).classList.remove('d-none');
+                            document.getElementById(`input-${id}`).classList.add('d-none');
+                            this.classList.add('d-none');
+                            this.closest('td').querySelector('.btn-edit').classList.remove('d-none');
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

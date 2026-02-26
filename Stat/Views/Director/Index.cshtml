@@ -1,0 +1,382 @@
+﻿@model Stat.Models.ViewModels.DirectorDashboardViewModel
+@using Stat.Models.ViewModels
+@{
+    ViewData["Title"] = "Tableau de Bord Directeur";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Récupération sécurisée des données du ViewBag
+    var directorType = ViewBag.DirectorType as string;
+    var structureName = ViewBag.StructureName as string;
+    var yearlySummaries = ViewBag.YearlySummaries as List<YearlySummaryViewModel>;
+    var pieChartData = ViewBag.StatusPieChart as SituationStatusPieChartViewModel;
+    
+}
+
+<div class="container-fluid px-4">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div>
+            <h1>Tableau de Bord @directorType</h1>
+            <p class="text-muted">Vue d'ensemble et Performance:@directorType @structureName</p>
+        </div>
+    </div>
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Indicateurs de Performance @(directorType == "DC" ? "Stratégiques" : "Opérationnels")</li>
+    </ol>
+
+    <!-- Cartes KPI -->
+    <div class="row">
+        @if (directorType == "DRI")
+        {
+            <h3>📊 Performance Propre (Situation DRI)</h3>
+            <div class="row">
+                @* --- Cartes DRI Propres --- *@
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card bg-primary text-white mb-4">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DRI_TotalSituations</div><div class="fs-15">Situations DRI (Total)</div></div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card bg-warning text-white mb-4">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DRI_SituationsInProgress</div><div class="fs-15">DRI: En Cours / Rejetées</div></div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card bg-info text-white mb-4">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DRI_SituationsPending</div><div class="fs-15">DRI: En Attente Validation</div></div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card bg-success text-white mb-4">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DRI_SituationsValidated</div><div class="fs-15">DRI: Situations Validées</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mt-4">🏢 Performance Consolidée (DIWs Gérés)</h3>
+            <div class="row">
+                @* --- Cartes DIW Gérés --- *@
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card text-white mb-4" style="background-color: #5d6d7e;">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DIW_TotalSituations</div><div class="fs-15">Situations DIW (Total)</div></div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card bg-warning text-white mb-4">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DIW_SituationsInProgress</div><div class="fs-15">DIW: En Cours / Rejetées</div></div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card bg-info text-white mb-4">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DIW_SituationsPending</div><div class="fs-15">DIW: En Attente Validation</div></div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card bg-success text-white mb-4">
+                        <div class="card-body"><div class="fs-6 fw-bold">@ViewBag.DIW_SituationsValidated</div><div class="fs-15">DIW: Situations Validées</div></div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            @* --- Cartes Agrégées Standard (Pour DC ou DIW simple) --- *@
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card text-white mb-4" style="background: var(--primary-gradient, linear-gradient(45deg, #4e73df, #224abe));">
+                    <div class="card-body"><div class="fs-6 fw-bold">@Model.TotalSituations</div><div class="fs-15">Total Situations</div></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card bg-warning text-white mb-4">
+                    <div class="card-body"><div class="fs-6 fw-bold">@Model.SituationsInProgress</div><div class="fs-15">Situations En Cours / Rejetées</div></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card bg-info text-white mb-4">
+                    <div class="card-body"><div class="fs-6 fw-bold">@Model.SituationsPending</div><div class="fs-15">Situations En Attente Validation</div></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card bg-success text-white mb-4">
+                    <div class="card-body"><div class="fs-6 fw-bold">@Model.SituationsValidated</div><div class="fs-15">Situations Validées</div></div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Contenu Principal -->
+    <div class="row">
+        <!-- Graphique Circulaire -->
+        <div class="col-xl-4">
+            <div class="card mb-4 h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <i class="fas fa-chart-pie me-1 text-primary"></i>
+                    Répartition Globale des Statuts
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:250px; width:100%">
+                        <canvas id="statusPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau d'Information -->
+        <div class="col-xl-8">
+            <div class="card mb-4 h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <i class="fas fa-info-circle me-1 text-info"></i>
+                    Informations sur la Structure
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Bienvenue sur le tableau de bord de supervision.</h5>
+                    <p class="card-text">
+                        En tant que <strong>Directeur @directorType @structureName</strong>, vous avez accès à une vue consolidée de la performance.
+                        Les graphiques ci-dessous présentent l'évolution des indicateurs par année et par catégorie (Axe).
+                    </p>
+                    @if (directorType == "DRI")
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-sitemap me-2"></i> Vous visualisez les données agrégées de vos <strong>Wilayas rattachées</strong>.
+                        </div>
+                    }
+                    else if (directorType == "DC")
+                    {
+                        <div class="alert alert-primary">
+                            <i class="fas fa-chess me-2"></i> Vous visualisez les indicateurs <strong>Stratégiques</strong> de votre Direction Centrale.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-chart-line me-2"></i> Vous visualisez les indicateurs <strong>Opérationnels</strong> de votre DIW.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Graphiques Dynamiques Annuels -->
+    @if (yearlySummaries != null)
+    {
+        @foreach (var yearSummary in yearlySummaries)
+        {
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-light border-bottom-0">
+                    <h3 class="h5 mb-0 text-primary">
+                        <i class="fas fa-calendar-alt me-2"></i> Performance Agrégée - Année @yearSummary.Year
+                    </h3>
+                </div>
+                <div class="card-body bg-light bg-opacity-10">
+                    <div class="row">
+                        @if (yearSummary.Charts.Any())
+                        {
+                            @foreach (var chart in yearSummary.Charts)
+                            {
+                                <div class="col-xl-6 mb-4">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <i class="fas fa-chart-bar me-1 text-secondary"></i>
+                                                @chart.CategoryName
+                                            </span>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Filtre Intelligent -->
+                                            <select class="form-select form-select-sm mb-3 chart-indicator-filter border-primary" data-chart-id="@chart.ChartId">
+                                                <option value="all">-- Vue d'ensemble (Tous les indicateurs) --</option>
+                                                @foreach (var label in chart.Labels)
+                                                {
+                                                    <option value="@label">@label</option>
+                                                }
+                                            </select>
+                                            <div style="height: 300px;">
+                                                <canvas id="@chart.ChartId"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12">
+                                <p class="text-center text-muted p-4">Aucune donnée de performance validée disponible pour cette année.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+            Chart.defaults.global.defaultFontColor = '#292b2c';
+
+            // --- 1. INJECTION SÉCURISÉE DES DONNÉES ---
+            // Le '?? "null"' garantit qu'on ne génère jamais de syntaxe invalide comme 'var x = ;'
+            var pieData = @Html.Raw((Json.Serialize(pieChartData)?.ToString()) ?? "null");
+            var yearlyData = @Html.Raw((Json.Serialize(yearlySummaries)?.ToString()) ?? "[]");
+
+            // --- 2. INITIALISATION DU CAMEMBERT ---
+            if (pieData) {
+                var ctxPie = document.getElementById("statusPieChart");
+                if (ctxPie) {
+                    new Chart(ctxPie, {
+                        type: 'doughnut',
+                        data: {
+                            labels: pieData.labels,
+                            datasets: [{
+                                data: pieData.data,
+                                backgroundColor: ['#ffc107', '#28a745', '#dc3545', '#007bff'],
+                                hoverBackgroundColor: ['#e0a800', '#218838', '#c82333', '#0056b3'],
+                                hoverBorderColor: "rgba(234, 236, 244, 1)",
+                            }],
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            legend: { display: true, position: 'bottom' },
+                            cutoutPercentage: 70
+                        }
+                    });
+                }
+            }
+
+            // --- 3. INITIALISATION DES GRAPHIQUES EN BARRES ---
+            window.myCharts = window.myCharts || {};
+            window.originalChartData = window.originalChartData || {};
+
+            // Fonction helper pour mettre à jour le graphique via le filtre
+            function updateChart(chartId, selectedIndicator) {
+                const chart = window.myCharts[chartId];
+                const originalData = window.originalChartData[chartId];
+                if (!chart || !originalData) return;
+
+                if (selectedIndicator === 'all') {
+                    chart.data.labels = originalData.labels;
+                    chart.data.datasets.forEach((dataset, i) => { dataset.data = originalData.datasets[i].data; });
+                } else {
+                    const index = originalData.labels.indexOf(selectedIndicator);
+                    if (index > -1) {
+                        chart.data.labels = [originalData.labels[index]];
+                        chart.data.datasets.forEach((dataset, i) => { dataset.data = [originalData.datasets[i].data[index]]; });
+                    }
+                }
+                chart.update();
+            }
+
+            // Boucle principale pour créer les graphiques
+            if (yearlyData && Array.isArray(yearlyData)) {
+                yearlyData.forEach(function (yearSummary) {
+                    if (yearSummary.charts) {
+                        yearSummary.charts.forEach(function (chart) {
+
+                            var ctx = document.getElementById(chart.chartId);
+                            if (ctx) {
+                                // Sauvegarde des données originales pour le filtrage
+                                window.originalChartData[chart.chartId] = {
+                                    labels: chart.labels,
+                                    datasets: [
+                                        { label: 'Performance Atteinte', data: chart.performanceJusquaCible },
+                                        { label: 'Écart Négatif', data: chart.ecartNegatif },
+                                        { label: 'Dépassement', data: chart.depassementCible }
+                                    ]
+                                };
+
+                                // Création du graphique
+                                window.myCharts[chart.chartId] = new Chart(ctx, {
+                                    type: 'horizontalBar',
+                                    data: {
+                                        labels: chart.labels,
+                                        // Stockage des valeurs brutes pour les infobulles
+                                        _customTaux: chart.tauxAtteintData,
+                                        _customCible: chart.cibleData,
+                                        datasets: [
+                                            {
+                                                label: 'Performance Atteinte',
+                                                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                                                data: chart.performanceJusquaCible
+                                            },
+                                            {
+                                                label: 'Écart Négatif (Manquant)',
+                                                backgroundColor: 'rgba(255, 159, 64, 0.8)',
+                                                data: chart.ecartNegatif
+                                            },
+                                            {
+                                                label: 'Dépassement de la Cible',
+                                                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                                                data: chart.depassementCible
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        maintainAspectRatio: false,
+                                        responsive: true,
+                                        tooltips: {
+                                            mode: 'index',
+                                            intersect: false,
+                                            callbacks: {
+                                                footer: function (tooltipItems, data) {
+                                                    const idx = tooltipItems[0].index;
+                                                    const tauxArr = data._customTaux;
+                                                    const cibleArr = data._customCible;
+
+                                                    if (!tauxArr || !cibleArr) return [];
+
+                                                    let taux = tauxArr[idx] !== undefined ? tauxArr[idx] : 0;
+                                                    let cible = cibleArr[idx] !== undefined ? cibleArr[idx] : 0;
+
+                                                    // Gestion du cas où le graphique est filtré (un seul label visible)
+                                                    if (data.labels.length === 1 && window.originalChartData[chart.chartId]) {
+                                                        const realLabel = data.labels[0];
+                                                        const realIdx = window.originalChartData[chart.chartId].labels.indexOf(realLabel);
+                                                        if (realIdx > -1) {
+                                                            taux = chart.tauxAtteintData[realIdx];
+                                                            cible = chart.cibleData[realIdx];
+                                                        }
+                                                    }
+
+                                                    let ecart = taux - cible;
+                                                    return [
+                                                        `--------------------------`,
+                                                        `Taux Réel: ${taux.toFixed(2)}%`,
+                                                        `Cible: ${cible.toFixed(2)}%`,
+                                                        `Écart: ${ecart.toFixed(2)}%`
+                                                    ];
+                                                }
+                                            }
+                                        },
+                                        scales: {
+                                            xAxes: [{
+                                                stacked: true,
+                                                ticks: { callback: function (v) { return v + "%" } }
+                                            }],
+                                            yAxes: [{ stacked: true }]
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Attacher les événements aux listes déroulantes
+            document.querySelectorAll('.chart-indicator-filter').forEach(select => {
+                select.addEventListener('change', function () {
+                    const chartId = this.dataset.chartId;
+                    const selectedIndicator = this.value;
+                    updateChart(chartId, selectedIndicator);
+                });
+            });
+        });
+    </script>
+}

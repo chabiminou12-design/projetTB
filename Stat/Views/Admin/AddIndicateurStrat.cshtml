@@ -1,0 +1,86 @@
+﻿@model Stat.Models.ViewModels.AddIndicateurStratViewModel
+@{
+    ViewData["Title"] = "Ajouter un Indicateur Stratégique";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="ListIndicateursStrat">Liste des Indicateurs Stratégiques</a></li>
+        <li class="breadcrumb-item active">Ajouter</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="AddIndicateurStrat" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                @* Other form fields (Axe, Objectif, Intitulé) remain the same *@
+                <div class="mb-3">
+                    <label asp-for="Indicateur.IdCategIn" class="form-label">Axe (Catégorie)</label>
+                    <select asp-for="Indicateur.IdCategIn" asp-items="Model.Categories" class="form-select" id="categorySelect" required>
+                        <option value="">-- Sélectionner une catégorie --</option>
+                    </select>
+                    <span asp-validation-for="Indicateur.IdCategIn" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Indicateur.idobj" class="form-label">Objectif</label>
+                    <select asp-for="Indicateur.idobj" asp-items="Model.Objectifs" class="form-select" id="objectiveSelect" disabled required>
+                        <option value="">-- Sélectionner d'abord une catégorie --</option>
+                    </select>
+                    <span asp-validation-for="Indicateur.idobj" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Indicateur.IntituleIn" class="form-label">Intitulé</label>
+                    <input asp-for="Indicateur.IntituleIn" class="form-control" required/>
+                    <span asp-validation-for="Indicateur.IntituleIn" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="InitialCible" class="form-label">Cible Initiale (pour @DateTime.Now.Year)</label>
+                    <input asp-for="InitialCible" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="InitialCible" class="text-danger"></span>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Créer l'Indicateur</button>
+                    <a asp-action="ListIndicateursStrat" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Scripts section remains unchanged *@
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorySelect = document.getElementById('categorySelect');
+            const objectiveSelect = document.getElementById('objectiveSelect');
+
+            categorySelect.addEventListener('change', function () {
+                const categoryId = this.value;
+                objectiveSelect.disabled = true;
+                objectiveSelect.innerHTML = '<option>Chargement...</option>';
+
+                if (!categoryId) {
+                    objectiveSelect.innerHTML = '<option value="">-- Sélectionner d\'abord une catégorie --</option>';
+                    return;
+                }
+
+                fetch(`/Admin/GetObjectivesByCategory?categoryId=${categoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        objectiveSelect.innerHTML = '<option value="">-- Sélectionner un objectif --</option>';
+                        data.forEach(obj => {
+                            objectiveSelect.innerHTML += `<option value="${obj.value}">${obj.text}</option>`;
+                        });
+                        objectiveSelect.disabled = false;
+                    });
+            });
+        });
+    </script>
+}

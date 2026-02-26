@@ -1,0 +1,27 @@
+﻿@model Stat.Models.User
+@{
+    ViewData["Title"] = "Changer la Photo de Profil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Mettre à jour votre photo
+            </div>
+            <div class="card-body">
+                <form asp-action="ChangePicture" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="picture" class="form-label">Choisissez une nouvelle photo (JPG, PNG):</label>
+                        <input type="file" name="picture" class="form-control" accept="image/png, image/jpeg" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sauvegarder la photo</button>
+                    <a asp-action="Profile" class="btn btn-secondary">Annuler</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

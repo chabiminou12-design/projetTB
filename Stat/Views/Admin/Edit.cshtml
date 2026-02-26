@@ -1,0 +1,153 @@
+﻿@model Stat.Models.ViewModels.EditUserViewModel
+@{
+    ViewData["Title"] = $"Modifier l'utilisateur: {Model.User.FirstNmUser} {Model.User.LastNmUser}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="listuser">Liste des Utilisateurs</a></li>
+        <li class="breadcrumb-item active">Modifier</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" method="post" id="editUserForm">
+                <input type="hidden" asp-for="User.ID_User" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.User_name" class="form-label"></label>
+                        <input asp-for="User.User_name" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.Statut" class="form-label">Rôle</label>
+                        <input type="hidden" asp-for="User.Statut" />
+                        <input type="text" class="form-control" value="@(Model.StatutOptions.FirstOrDefault(o => o.Value == Model.User.Statut.ToString())?.Text ?? "Inconnu")" readonly />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.FirstNmUser" class="form-label">Prénom</label>
+                        <input asp-for="User.FirstNmUser" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.LastNmUser" class="form-label">Nom</label>
+                        <input asp-for="User.LastNmUser" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.MailUser" class="form-label">Email</label>
+                        <input asp-for="User.MailUser" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.TelUser" class="form-label">Téléphone</label>
+                        <input asp-for="User.TelUser" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+               
+                        <input type="hidden" asp-for="User.CodeDIW" />
+                        
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                    <a asp-action="listuser" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+
+            <hr />
+            <h5>Actions supplémentaires</h5>
+            <div class="d-flex gap-2">
+                <button class="btn btn-warning" id="btnResetPassword" data-userid="@Model.User.ID_User">Réinitialiser le mot de passe</button>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteUserModal" data-id="@Model.User.ID_User">
+                    <i class="fas fa-trash"></i> Supprimer l'Utilisateur
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteUserModal" tabindex="-1" aria-labelledby="confirmDeleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteUserModalLabel">Confirmation de Suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer définitivement cet utilisateur ?<br />
+                <strong>Cette action est irréversible.</strong>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteUserForm" asp-controller="Admin" asp-action="DeleteUser" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Confirmer la Suppression</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const resetButton = document.getElementById('btnResetPassword');
+            const token = document.querySelector('#editUserForm input[name="__RequestVerificationToken"]').value;
+
+            resetButton.addEventListener('click', function () {
+                const userId = this.getAttribute('data-userid');
+
+                if (confirm("Êtes-vous sûr de vouloir réinitialiser le mot de passe de cet utilisateur ? Cette action est irréversible.")) {
+
+                    resetButton.disabled = true;
+                    resetButton.textContent = "Réinitialisation en cours...";
+
+                    fetch(`/Admin/ResetPassword?id=${userId}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(`Le mot de passe a été réinitialisé avec succès.\n\nNouveau mot de passe : ${data.newPassword}\n\nVeuillez le communiquer à l'utilisateur.`);
+                            } else {
+                                alert("Une erreur s'est produite lors de la réinitialisation du mot de passe.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert("Une erreur de communication s'est produite.");
+                        })
+                        .finally(() => {
+                            resetButton.disabled = false;
+                            resetButton.textContent = "Réinitialiser le mot de passe";
+                        });
+                }
+            });
+
+
+            // ✨ ADD THIS SCRIPT for the Delete User Modal
+            var confirmDeleteModal = document.getElementById('confirmDeleteUserModal');
+            if (confirmDeleteModal) {
+                confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var userId = button.getAttribute('data-id');
+                    var deleteForm = confirmDeleteModal.querySelector('#deleteUserForm');
+
+                    var actionUrl = `/Admin/DeleteUser/${userId}`;
+                    deleteForm.setAttribute('action', actionUrl);
+                });
+            }
+        });
+    </script>
+}

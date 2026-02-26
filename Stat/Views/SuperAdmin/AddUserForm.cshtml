@@ -1,0 +1,148 @@
+﻿@using System.Text.Json;
+@model Stat.Models.ViewModels.AddUserViewModel
+@{
+    ViewData["Title"] = $"Ajouter un Utilisateur {Model.UserType}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="AddUser">Choisir Type</a></li>
+        <li class="breadcrumb-item active">Créer Utilisateur</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="AddUserForm" method="post">
+                <input type="hidden" asp-for="UserType" />
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <h4>Informations Personnelles</h4>
+                <hr />
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label asp-for="FirstNmUser"></label><input asp-for="FirstNmUser" class="form-control" /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="LastNmUser"></label><input asp-for="LastNmUser" class="form-control" /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="MailUser"></label><input asp-for="MailUser" class="form-control" /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="TelUser"></label><input asp-for="TelUser" class="form-control" /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="Date_deb_Affect"></label><input type="date" asp-for="Date_deb_Affect" class="form-control" /></div>
+                </div>
+
+                @if (Model.UserType == "DIW" || Model.UserType == "DRI")
+                {
+                    <h4 class="mt-4">Assignation de Structure</h4>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SelectedDRI">Direction Régionale</label>
+                            <select asp-for="SelectedDRI" asp-items="Model.DRIOptions" class="form-select" id="driSelect"><option value="">Sélectionnez une DRI</option></select>
+                        </div>
+                        @if (Model.UserType == "DIW")
+                        {
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SelectedDIW">Direction de Wilaya</label>
+                                <select asp-for="SelectedDIW" class="form-select" id="diwSelect" disabled><option value="">Sélectionnez d'abord une DRI</option></select>
+                            </div>
+                        }
+                    </div>
+                }
+                @if (Model.UserType == "DC")
+                {
+                    <h4 class="mt-4">Assignation de Structure</h4>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SelectedDC">Direction Centrale</label>
+                            <select asp-for="SelectedDC" asp-items="Model.DCOptions" class="form-select"><option value="">Sélectionnez une DC</option></select>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.UserType == "Director")
+                {
+                    <h4 class="mt-4">Assignation de Structure (Directeur)</h4>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="directorType" class="form-label">Type de Directeur</label>
+                            <select id="directorType" class="form-select">
+                                <option value="">-- Sélectionner un Type --</option>
+                                <option value="DC">Directeur de DC</option>
+                                <option value="DRI">Directeur de DRI</option>
+                                <option value="DIW">Directeur de DIW</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SelectedDirectorStructure" class="form-label"></label>
+                            <select asp-for="SelectedDirectorStructure" id="directorStructure" class="form-select" required>
+                                <option value="">-- Sélectionner d'abord un type --</option>
+                            </select>
+                            <span asp-validation-for="SelectedDirectorStructure" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+
+                <button type="submit" class="btn btn-primary mt-4">Créer Utilisateur</button>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // This script for regular DIW users is fine and needs no changes.
+            const driSelect = document.getElementById('driSelect');
+            const diwSelect = document.getElementById('diwSelect');
+            if (driSelect && diwSelect) {
+                driSelect.addEventListener('change', function () {
+                    fetch(`/SuperAdmin/GetDiwsByDri?driCode=${this.value}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            diwSelect.innerHTML = '<option value="">Sélectionnez une DIW</option>';
+                            data.forEach(diw => {
+                                diwSelect.innerHTML += `<option value="${diw.value}">${diw.text}</option>`;
+                            });
+                            diwSelect.disabled = false;
+                        });
+                });
+            }
+
+            // --- ✨ THE DEFINITIVE CORRECTED SCRIPT FOR DIRECTOR CREATION ✨ ---
+            const directorTypeSelect = document.getElementById('directorType');
+            if (directorTypeSelect) {
+                const structureSelect = document.getElementById('directorStructure');
+
+                // Your data is already serialized with PascalCase, so we just read it.
+                const dcOptions = @Html.Raw(JsonSerializer.Serialize(Model.DCOptions));
+                const driOptions = @Html.Raw(JsonSerializer.Serialize(Model.DRIOptions));
+                const allDiws = @Html.Raw(JsonSerializer.Serialize(Model.AllDiws));
+
+                directorTypeSelect.addEventListener('change', function () {
+                    const type = this.value;
+                    structureSelect.innerHTML = '';
+
+                    if (type === 'DC') {
+                        structureSelect.append(new Option('-- Sélectionner une DC --', ''));
+                        // FIX: Use PascalCase .Text and .Value to match your data
+                        dcOptions.forEach(opt => structureSelect.append(new Option(opt.Text, opt.Value)));
+                    }
+                    else if (type === 'DRI') {
+                        structureSelect.append(new Option('-- Sélectionner une DRI --', ''));
+                        // FIX: Use PascalCase .Text and .Value to match your data
+                        driOptions.forEach(opt => structureSelect.append(new Option(opt.Text, opt.Value)));
+                    }
+                    else if (type === 'DIW') {
+                        structureSelect.append(new Option('-- Sélectionner une DIW --', ''));
+                        // FIX: Use PascalCase .LibelleDIW and .CodeDIW to match your data
+                        allDiws.forEach(diw => {
+                            structureSelect.append(new Option(diw.LibelleDIW, diw.CodeDIW));
+                        });
+                    }
+                    else {
+                        structureSelect.append(new Option('-- Sélectionner d\'abord un type --', ''));
+                    }
+                });
+            }
+        });
+    </script>
+}

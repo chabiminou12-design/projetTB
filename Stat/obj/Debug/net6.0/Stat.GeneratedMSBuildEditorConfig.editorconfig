@@ -1,0 +1,381 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Stat
+build_property.RootNamespace = Stat
+build_property.ProjectDir = D:\ancien projet\ancien projet\WebStat 3.4 suite\WebStat 1.9 3 suite\Stat\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\ancien projet\ancien projet\WebStat 3.4 suite\WebStat 1.9 3 suite\Stat
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Access/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXNzXENoYW5nZVBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Access/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXNzXEZvcmdvdFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Access/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXNzXExvZ2luLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Access/ResetPasswordFromRecovery.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXNzXFJlc2V0UGFzc3dvcmRGcm9tUmVjb3ZlcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/AddDIW.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkRElXLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/AddDRI.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkRFJJLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/AddIndicateurDri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkSW5kaWNhdGV1ckRyaS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/AddIndicateurOps.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkSW5kaWNhdGV1ck9wcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/AddIndicateurStrat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkSW5kaWNhdGV1clN0cmF0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/AddUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkVXNlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/AddUserForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkVXNlckZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ConsulteDRI.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ29uc3VsdGVEUkkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ConsulteOp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ29uc3VsdGVPcC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ConsulteRapports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ29uc3VsdGVSYXBwb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ConsulteStrat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ29uc3VsdGVTdHJhdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/DeleteDRI.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGVsZXRlRFJJLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/EditIndicateurDri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdEluZGljYXRldXJEcmkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/EditIndicateurOps.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdEluZGljYXRldXJPcHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/EditIndicateurStrat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdEluZGljYXRldXJTdHJhdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/GestionAxes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cR2VzdGlvbkF4ZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/GestionCiblesDri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cR2VzdGlvbkNpYmxlc0RyaS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/GestionCiblesOps.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cR2VzdGlvbkNpYmxlc09wcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/GestionCiblesStrat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cR2VzdGlvbkNpYmxlc1N0cmF0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/GestionDCs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cR2VzdGlvbkRDcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/GestionObjectifs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cR2VzdGlvbk9iamVjdGlmcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/IndicateursIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kaWNhdGV1cnNJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/listdiw.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cbGlzdGRpdy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/listdri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cbGlzdGRyaS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ListIndicateursDri.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTGlzdEluZGljYXRldXJzRHJpLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ListIndicateursOps.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTGlzdEluZGljYXRldXJzT3BzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ListIndicateursStrat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTGlzdEluZGljYXRldXJzU3RyYXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ListPendingSituations.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTGlzdFBlbmRpbmdTaXR1YXRpb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/listuser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cbGlzdHVzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ListValidatedSituations.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTGlzdFZhbGlkYXRlZFNpdHVhdGlvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/NiveauOperationnel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTml2ZWF1T3BlcmF0aW9ubmVsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/NiveauStrategique.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTml2ZWF1U3RyYXRlZ2lxdWUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ReviewDRI.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUmV2aWV3RFJJLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Admin/ReviewStrat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUmV2aWV3U3RyYXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DC/ChangePicture.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRENcQ2hhbmdlUGljdHVyZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DC/consulte.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRENcY29uc3VsdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DC/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRENcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DC/_Editer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRENcX0VkaXRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DC/_Validite.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRENcX1ZhbGlkaXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Director/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlyZWN0b3JcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Director/ListUsers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlyZWN0b3JcTGlzdFVzZXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Director/ListValidatedSituations.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlyZWN0b3JcTGlzdFZhbGlkYXRlZFNpdHVhdGlvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DIW/ChangePicture.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRElXXENoYW5nZVBpY3R1cmUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DIW/consulte.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRElXXGNvbnN1bHRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DIW/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRElXXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DIW/_Editer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRElXXF9FZGl0ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DIW/_Validite.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRElXXF9WYWxpZGl0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRIIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/AnalyseOperationnelle.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXEFuYWx5c2VPcGVyYXRpb25uZWxsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/ChangePicture.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXENoYW5nZVBpY3R1cmUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/DIWs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXERJV3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/Indicateurs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXEluZGljYXRldXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/ReviewSituation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXFJldmlld1NpdHVhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/_ConsulterDRI.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXF9Db25zdWx0ZXJEUkkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/_Editer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXF9FZGl0ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/_EditerDRI.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXF9FZGl0ZXJEUkkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/_Saisir.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXF9TYWlzaXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/_Validite.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXF9WYWxpZGl0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/DRI/_ValiditeDRI.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRFJJXF9WYWxpZGl0ZURSSS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/ChangePicture.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENoYW5nZVBpY3R1cmUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFByb2ZpbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_AdminSidebarPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BZG1pblNpZGViYXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_ConsulteOpPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Db25zdWx0ZU9wUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_DCSidebarPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EQ1NpZGViYXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_DirectorSidebarPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EaXJlY3RvclNpZGViYXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_DIWSidebarPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9ESVdTaWRlYmFyUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_DRISidebarPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EUklTaWRlYmFyUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_Layout1.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQxLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/AddUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxBZGRVc2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/AddUserForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxBZGRVc2VyRm9ybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/ChangePicture.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxDaGFuZ2VQaWN0dXJlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/EditUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxFZGl0VXNlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/ListAdmins.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxMaXN0QWRtaW5zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/ListAllUsers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxMaXN0QWxsVXNlcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/ManagePermissions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxNYW5hZ2VQZXJtaXNzaW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/SuperAdmin/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwZXJBZG1pblxQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ancien projet/ancien projet/WebStat 3.4 suite/WebStat 1.9 3 suite/Stat/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-tjt0z6icgo

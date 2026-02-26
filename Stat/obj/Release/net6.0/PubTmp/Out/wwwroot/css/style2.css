@@ -1,0 +1,8 @@
+@charset "UTF-8";
+ul.nested li:nth-child(odd) {
+    background-color: #90ee90;
+}
+
+ul.nested li:nth-child(even) {
+    background-color: #add8e6;
+}

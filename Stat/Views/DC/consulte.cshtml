@@ -1,0 +1,45 @@
+﻿@model Stat.Models.ViewModels.DCDataEntryViewModel
+@{
+    ViewData["Title"] = "Consulter la Situation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var situation = ViewBag.Situation as Stat.Models.Situation;
+    var declarations = ViewBag.Declarations as Dictionary<string, Stat.Models.DeclarationStrategique>;
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <h3 class="text-muted">@situation.Month @situation.Year</h3>
+
+    @foreach (var category in Model.Categories)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-success bg-gradient text-white fw-bolder">
+                <h4 class="mb-0">@category.CategoryName</h4>
+            </div>
+            <div class="card-body p-0">
+                @foreach (var objective in category.Objectives)
+                {
+                    <div class="objective-header p-3 bg-success bg-opacity-25">
+                        <h5 class="mb-0">Objectif :@objective.ObjectiveName</h5>
+                    </div>
+                    <table class="table table-bordered mb-0">
+                        <tbody>
+                            @foreach (var indicator in objective.Indicators)
+                            {
+                                var decl = declarations?.GetValueOrDefault(indicator.IdIndic);
+                                <tr>
+                                    <td style="width: 40%;"><strong>@indicator.IntituleIn</strong></td>
+                                    <td><span class="small text-muted">Cible:</span> @indicator.Cible.ToString("F2")</td>
+                                    <td><span class="small text-muted">Numérateur:</span> @decl?.Numerateur</td>
+                                    <td><span class="small text-muted">Dénominateur:</span> @decl?.Denominateur</td>
+                                    <td><span class="small text-muted">Taux:</span> @decl?.taux?.ToString("F2")%</td>
+                                    <td><span class="small text-muted">Écart:</span> @decl?.ecart?.ToString("F2")%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+</div>

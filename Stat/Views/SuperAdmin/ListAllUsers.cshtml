@@ -1,0 +1,196 @@
+﻿@model PaginatedList<Stat.Models.User>
+@{
+    ViewData["Title"] = "Gestion Globale des Utilisateurs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var roleNames = ViewBag.RoleNames as Dictionary<int, string>;
+    var superAdminId = (string)ViewBag.SuperAdminId; 
+    var structureNames = ViewBag.StructureNames as Dictionary<string, string>;
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        @Html.Raw(TempData["SuccessMessage"])
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord Super Admin</a></li>
+        <li class="breadcrumb-item active">Liste de tous les Utilisateurs</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Tous les Utilisateurs</h5>
+            
+            <form asp-action="ListAllUsers" method="get" class="d-flex">
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control form-control-sm me-2" placeholder="Rechercher..." />
+                
+                <select name="roleFilter" class="form-select form-select-sm me-2" style="width: auto;">
+                    <option value="">Tous les rôles</option>
+                    @{
+                        // Récupère la valeur du filtre actuel (sera un int?)
+                        var currentRoleFilter = ViewData["CurrentRoleFilter"] as int?;
+                        
+                        // Construit les options à partir du dictionnaire de rôles
+                        if (roleNames != null)
+                        {
+                            foreach (var role in roleNames)
+                            {
+                                // Pré-sélectionne l'option si elle correspond au filtre actuel
+                                <option value="@role.Key" selected="@(currentRoleFilter.HasValue && currentRoleFilter.Value == role.Key)">
+                                    @role.Value
+                                </option>
+                            }
+                        }
+                    }
+                </select>
+                
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <div class="card-body">
+            @Html.AntiForgeryToken()
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nom d'utilisateur</th>
+                            <th>Nom Complet</th>
+                            <th>Rôle</th>
+                            <th>Structure</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            if (@item.User_name == "s.admin")
+                            {
+                                
+                            }
+                            else{
+                            <tr>
+                                <td>@item.User_name</td>
+                                <td>@item.FirstNmUser @item.LastNmUser</td>
+                                <td>
+                                    <span class="badge bg-info text-dark">
+                                        @(roleNames.TryGetValue(item.Statut, out var roleName) ? roleName : "Inconnu")
+                                    </span>
+                                </td>
+                                <td>
+                                    @{
+                                        // Par défaut, si aucun nom n'est trouvé
+                                        var structureName = "Non assigné";
+
+                                        // Tenter de trouver le nom correspondant au code
+                                        if (structureNames != null &&
+                                        item.CodeDIW != null &&
+                                        structureNames.TryGetValue(item.CodeDIW, out var name))
+                                        {
+                                            structureName = name;
+                                        }
+                                    }
+                                    @structureName
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Actif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-action="EditUser" asp-controller="SuperAdmin" asp-route-id="@item.ID_User"
+                                           class="btn btn-sm btn-primary @(item.IsActive ? "" : "disabled")">Gérer</a>
+
+                                        @if (item.ID_User != superAdminId)
+                                        {
+                                            <button class="btn btn-sm toggle-status @(item.IsActive ? "btn-danger" : "btn-success")" data-id="@item.ID_User">
+                                                @(item.IsActive ? "Désactiver" : "Activer")
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+            <nav>
+                <ul class="pagination justify-content-end">
+                    <li class="page-item @prevDisabled">
+                        <a asp-action="ListAllUsers" 
+                           asp-route-pageNumber="@(Model.PageIndex - 1)" 
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-roleFilter="@ViewData["CurrentRoleFilter"]"
+                           class="page-link">Précédent</a>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a asp-action="ListAllUsers" 
+                           asp-route-pageNumber="@(Model.PageIndex + 1)" 
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-roleFilter="@ViewData["CurrentRoleFilter"]"
+                           class="page-link">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $(".toggle-status").click(function () {
+                var button = $(this);
+                var userId = button.data("id");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/SuperAdmin/ToggleIsActive", 
+                    data: { id: userId },
+                    headers: {
+                        'RequestVerificationToken': token 
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            var manageButton = button.closest("tr").find(".btn-primary");
+                            var statusBadge = button.closest("tr").find("td:nth-child(5) .badge");
+
+                            if (response.newStatus === true) {
+                                button.text("Désactiver").removeClass("btn-success").addClass("btn-danger");
+                                manageButton.removeClass("disabled");
+                                statusBadge.text("Actif").removeClass("bg-secondary").addClass("bg-success");
+                            } else {
+                                button.text("Activer").removeClass("btn-danger").addClass("btn-success");
+                                manageButton.addClass("disabled");
+                                statusBadge.text("Inactif").removeClass("bg-success").addClass("bg-secondary");
+                            }
+                        } else {
+                            alert("Erreur: " + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Une erreur s'est produite lors de la communication avec le serveur.");
+                    }
+                });
+            });
+        });
+    </script>
+}

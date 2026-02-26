@@ -1,0 +1,141 @@
+﻿@model IEnumerable<Stat.Models.DC>
+@{
+    ViewData["Title"] = "Gestion des Directions Centrales";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Gérer les DCs</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-plus me-1"></i> Ajouter une Nouvelle Direction Centrale
+        </div>
+        <div class="card-body">
+            <form asp-action="AddDC" method="post" class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label for="codeDC" class="form-label">Code DC</label>
+                    <input type="text" name="codeDC" class="form-control" required />
+                </div>
+                <div class="col-md-3">
+                    <label for="libelleDC" class="form-label">Libellé DC</label>
+                    <input type="text" name="libelleDC" class="form-control" required />
+                </div>
+                <div class="col-md-5">
+                    <label for="description" class="form-label">Description</label>
+                    <input type="text" name="description" class="form-control" required />
+                </div>
+                <div class="col-md-1">
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Ajouter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-sitemap me-1"></i> Liste des Directions Centrales
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Libellé</th>
+                        <th>Description</th>
+                        <th style="width: 15%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dc in Model)
+                    {
+                        <tr>
+                            <td>@dc.CodeDC</td>
+                            <td>@dc.LibelleDC</td>
+                            <td>@dc.description</td>
+                            <td class="text-center">
+                                <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" data-id="@dc.CodeDC" data-libelle="@dc.LibelleDC" data-description="@dc.description">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </button>
+                                <form asp-action="DeleteDC" asp-route-id="@dc.CodeDC" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette DC ?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier la Direction Centrale</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" asp-action="EditDC" method="post">
+                    <input type="hidden" id="editId" name="id" />
+                    <div class="mb-3">
+                        <label for="editLibelle" class="form-label">Nouveau Libellé</label>
+                        <input type="text" id="editLibelle" name="libelle" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea id="editDescription" name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="saveEditBtn">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editModal = document.getElementById('editModal');
+            editModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const libelle = button.getAttribute('data-libelle');
+                // ✨ Get the description from the button's data attribute
+                const description = button.getAttribute('data-description');
+
+                editModal.querySelector('#editId').value = id;
+                editModal.querySelector('#editLibelle').value = libelle;
+                // ✨ Set the value for the description textarea
+                editModal.querySelector('#editDescription').value = description;
+            });
+
+            document.getElementById('saveEditBtn').addEventListener('click', function () {
+                document.getElementById('editForm').submit();
+            });
+        });
+    </script>
+}

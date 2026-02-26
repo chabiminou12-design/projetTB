@@ -1,0 +1,149 @@
+﻿@model IEnumerable<Stat.Models.Rapport>
+@{
+    ViewData["Title"] = "Consultation des Rapports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Consultation des Rapports</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Dashboard</a></li>
+        <li class="breadcrumb-item active">Rapports Trimestriels / Annuels</li>
+    </ol>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+            @TempData["SuccessMessage"]
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+            @TempData["ErrorMessage"]
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-file-alt me-1"></i> Liste des Rapports Soumis
+        </div>
+
+        <div class="card-body border-bottom">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-auto">
+                <select name="filterYear" class="form-select">
+                    <option value="">-- Année --</option>
+                    @foreach (var y in ViewBag.Years)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <select name="filterStructure" class="form-select">
+                    <option value="">-- Structure --</option>
+                    @foreach (var s in ViewBag.Structures)
+                    {
+                        <option value="@s.Key">@s.Value</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Filtrer</button>
+            </div>
+        </form>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover" id="rapportsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Structure</th>
+                        <th>Type</th>
+                        <th>Année</th>
+                        <th>Date d'Envoi</th>
+                        <th>Statut</th>
+                        <th>Fichier</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (ViewBag.StructureNames != null && ViewBag.StructureNames.ContainsKey(item.CodeStructure))
+                                {
+                                    @ViewBag.StructureNames[item.CodeStructure]
+                                }
+                                else
+                                {
+                                    <span class="text-muted">@item.CodeStructure</span>
+                                }
+                            </td>
+                            <td>@item.Type</td>
+                            <td>@item.Year</td>
+                            <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @if (item.Status == 0)
+                                {
+                                    <span class="badge bg-warning">En attente</span>
+                                }
+                                else if (item.Status == 1)
+                                {
+                                    <span class="badge bg-success">Validé</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger" title="Motif: @item.Motif">Rejeté</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="@item.FilePath" class="btn btn-sm btn-outline-info" target="_blank">
+                                    <i class="fas fa-download"></i> Voir
+                                </a>
+                            </td>
+                            <td>
+                                @if (item.Status == 0)
+                                {
+                                    <form asp-action="ValiderRapport" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">Valider</button>
+                                    </form>
+                                    <button class="btn btn-sm btn-danger" onclick="openRejectModal(@item.Id)">Rejeter</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form asp-action="RejeterRapport" method="post">
+            <input type="hidden" name="id" id="rejectRapportId" />
+            <div class="modal-content">
+                <div class="modal-header"><h5>Motif du Rejet</h5></div>
+                <div class="modal-body">
+                    <textarea name="motif" class="form-control" placeholder="Expliquez pourquoi le rapport est rejeté..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Confirmer le Rejet</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openRejectModal(id) {
+        document.getElementById('rejectRapportId').value = id;
+        new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    }
+</script>

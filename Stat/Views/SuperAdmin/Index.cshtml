@@ -1,0 +1,210 @@
+﻿@model Stat.Models.ViewModels.SuperAdminDashboardViewModel
+@{
+    ViewData["Title"] = "Vue Globale du Système";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var roleNames = ViewBag.RoleNames as Dictionary<int, string>;
+    var structureNames = ViewBag.StructureNames as Dictionary<string, string>;
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h1 class="h2">@ViewData["Title"]</h1>
+            <p class="text-muted">Supervision globale et santé de l'application</p>
+        </div>
+        <div>
+            <a asp-action="AddUser" class="btn btn-primary"><i class="fas fa-user-plus me-2"></i>Nouvel Utilisateur</a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start-lg border-start-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-primary mb-1">UTILISATEURS TOTAUX</div>
+                            <div class="h5">@Model.TotalUsers</div>
+                            <div class="text-xs fw-bold text-success d-inline-flex align-items-center">
+                                <i class="fas fa-check me-1"></i> @Model.ActiveUserCount Actifs
+                            </div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-users fa-2x text-gray-200"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start-lg border-start-info h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-info mb-1">STRUCTURES CLÉS</div>
+                            <div class="h5">@Model.TotalDris <span class="fs-6 text-muted">DRIs</span> / @Model.TotalDcs <span class="fs-6 text-muted">DCs</span></div>
+                            <div class="text-xs text-muted">
+                                @Model.TotalDiws DIWs Opérationnels
+                            </div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-sitemap fa-2x text-gray-200"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start-lg border-start-warning h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-warning mb-1">FLUX DE SITUATIONS</div>
+                            <div class="h5">@Model.TotalSituationsSubmitted</div>
+                            <div class="text-xs text-muted">Situations soumises (Tout temps)</div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-file-contract fa-2x text-gray-200"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-start-lg border-start-success h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold text-success mb-1">TAUX DE VALIDATION</div>
+                            <div class="h5">@Model.SystemCompletionRate%</div>
+                            <div class="progress progress-thin mt-1">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: @Model.SystemCompletionRate%" aria-valuenow="@Model.SystemCompletionRate" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-check-circle fa-2x text-gray-200"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent fw-bold">
+                    Répartition des Rôles
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <canvas id="rolesChart" width="100%" height="250"></canvas>
+                </div>
+                <div class="card-footer small text-muted text-center">
+                    Administration: @Model.TotalAdmins | Direction: @Model.TotalDirecteurs
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Dernières Activités Système</span>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="nav nav-tabs nav-justified" id="activityTab" role="tablist">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#connexions" type="button">Dernières Connexions</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#nouveaux" type="button">Nouveaux Inscrits</button></li>
+                    </ul>
+                    <div class="tab-content p-3" id="activityTabContent">
+                        <div class="tab-pane fade show active" id="connexions" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <tbody>
+                                        @foreach (var user in Model.RecentlyConnectedUsers)
+                                        {
+                                            <tr>
+                                                <td style="width: 50px;">
+                                                    <div class="avatar bg-light text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        @user.FirstNmUser.Substring(0,1)@user.LastNmUser.Substring(0,1)
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-bold">@user.FirstNmUser @user.LastNmUser</div>
+                                                    <div class="small text-muted">@user.User_name</div>
+                                                </td>
+                                                <td class="text-end text-muted small">
+                                                    <i class="far fa-clock me-1"></i> @(user.LastCnx?.ToString("dd/MM/yyyy HH:mm") ?? "Jamais")
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="nouveaux" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <tbody>
+                                        @foreach (var user in Model.RecentlyCreatedUsers)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-bold">@user.FirstNmUser @user.LastNmUser</div>
+                                                    <span class="badge bg-secondary">Role: @(roleNames.TryGetValue(user.Statut, out var roleName) ? roleName : "Inconnu")</span>
+                                                    <span class="badge bg-secondary">
+                                                        Structure: @(
+                                                    structureNames != null && user.CodeDIW != null && structureNames.TryGetValue(user.CodeDIW, out var sName) ?
+                                                    sName :
+                                                    "Non assigné"
+                                                    )
+                                                    </span>
+                                                </td>
+                                                <td class="text-end text-muted small">
+                                                    Créé le @((((DateTime)user.DateDeCreation).ToString("dd/MM/yyyy")))
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center bg-light">
+                    <a asp-action="ListAllUsers" class="btn btn-sm btn-outline-primary">Gérer tous les utilisateurs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Donut Chart for Roles
+        const ctxRoles = document.getElementById('rolesChart');
+        if (ctxRoles) {
+            new Chart(ctxRoles, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Admins', 'Directeurs', 'DCs', 'DRIs', 'DIWs'],
+                    datasets: [{
+                        data: [@Model.TotalAdmins, @Model.TotalDirecteurs, @Model.TotalDcs, @Model.TotalDris, @Model.TotalDiws],
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#858796'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+    </script>
+}

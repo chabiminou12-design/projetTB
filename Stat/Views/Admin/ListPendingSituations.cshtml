@@ -1,0 +1,55 @@
+﻿@model List<Stat.Models.ViewModels.ValidatedSituationViewModel>
+@{
+    ViewData["Title"] = "Situations en Attente de Validation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord</a></li>
+        <li class="breadcrumb-item active">Situations en Attente</li>
+    </ol>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-table me-1"></i>Situations soumises par les DC et DRI</div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Période</th>
+                        <th>Type</th>
+                        <th>Structure</th>
+                        <th>Soumis Par</th>
+                        <th>Date de Soumission</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.Period</strong></td>
+                            <td>@item.SituationType</td>
+                            <td>@item.StructureName</td>
+                            <td>@item.SubmittedBy</td>
+                            <td>@item.ValidationDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-center">
+                                <a asp-action="ReviewSituation" asp-route-id="@item.SituationId" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-search"></i> Réviser
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

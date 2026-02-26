@@ -1,0 +1,54 @@
+﻿@model Stat.Models.User
+@{
+    ViewData["Title"] = "Changer la Photo de Profil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Profile">Profil</a></li>
+        <li class="breadcrumb-item active">Changer la Photo</li>
+    </ol>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    Télécharger une nouvelle photo
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <p>Aperçu actuel :</p>
+                        @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                        {
+                            <img src="@Model.ProfilePictureUrl" alt="Photo de profil" class="img-thumbnail" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;" />
+                        }
+                        else
+                        {
+                            <div class="initials-avatar-lg">
+                                @Stat.Helpers.AvatarHelper.GetInitials(Model.FirstNmUser)
+                            </div>
+                        }
+                    </div>
+
+                    <form asp-action="ChangePicture" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="picture" class="form-label">Sélectionner un fichier image :</label>
+                            <input type="file" name="picture" class="form-control" accept="image/png, image/jpeg, image/gif" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Enregistrer la nouvelle photo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

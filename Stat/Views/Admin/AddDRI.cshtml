@@ -1,0 +1,33 @@
+﻿@model Stat.Models.DRI
+@{
+    ViewData["Title"] = "Ajouter une DRI";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="listdri">Liste des DRIs</a></li>
+        <li class="breadcrumb-item active">Ajouter</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="AddDRI" method="post">
+                
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="CodeDRI" class="form-label"></label>
+                    <input asp-for="CodeDRI" class="form-control" required/>
+                    <span asp-validation-for="CodeDRI" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="LibelleDRI" class="form-label"></label>
+                    <input asp-for="LibelleDRI" class="form-control" required/>
+                    <span asp-validation-for="LibelleDRI" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Ajouter la DRI</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,199 @@
+﻿@model Stat.Models.ViewModels.GestionCiblesOpsViewModel
+@{
+    ViewData["Title"] = "Gestion des Cibles Opérationnelles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    @@keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .new-row {
+        animation: slideInUp 0.4s ease-out forwards;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Cibles Opérationnelles</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4 animated-fade-in">
+        <div class="card-header">
+            <i class="fas fa-filter me-1"></i> Étape 1: Sélectionner une Structure et une Année de Début
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="diwSelect" class="form-label">Direction de Wilaya (DIW)</label>
+                    <select id="diwSelect" asp-for="SelectedDiwCode" asp-items="Model.DiwOptions" class="form-select form-select-lg">
+                        <option value="">-- Veuillez choisir une DIW --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="yearSelect" class="form-label">Année de début</label>
+                    <select id="yearSelect" asp-for="SelectedYear" asp-items="Model.YearOptions" class="form-select form-select-lg"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cibles-container" class="animated-fade-in" style="display:none;">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bullseye me-1"></i>
+                Étape 2: Mettre à jour les cibles pour <strong id="selected-diw-name"></strong> (Période: <strong id="selected-year-range"></strong>)
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="GestionCiblesOps">
+                    <input type="hidden" name="SelectedDiwCode" id="hiddenSelectedDiwCode" />
+                    <input type="hidden" name="SelectedYear" id="hiddenSelectedYear" />
+
+                    <div id="loading-spinner" class="text-center my-5" style="display:none;">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Chargement des cibles...</p>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover professional-table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Axe</th>
+                                    <th>Indicateur</th>
+                                    <th style="width: 12%; text-align:center;" id="header-y1">Année N</th>
+                                    <th style="width: 12%; text-align:center;" id="header-y2">Année N+1</th>
+                                    <th style="width: 12%; text-align:center;" id="header-y3">Année N+2</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cibles-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const diwSelect = document.getElementById('diwSelect');
+            const yearSelect = document.getElementById('yearSelect');
+            const ciblesContainer = document.getElementById('cibles-container');
+            const ciblesTableBody = document.getElementById('cibles-table-body');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const hiddenDiwCodeInput = document.getElementById('hiddenSelectedDiwCode');
+            const hiddenYearInput = document.getElementById('hiddenSelectedYear');
+            const selectedDiwNameSpan = document.getElementById('selected-diw-name');
+            const selectedYearRangeSpan = document.getElementById('selected-year-range');
+
+            const headerY1 = document.getElementById('header-y1');
+            const headerY2 = document.getElementById('header-y2');
+            const headerY3 = document.getElementById('header-y3');
+
+            function fetchCibles() {
+                const selectedDiwCode = diwSelect.value;
+                const startYear = parseInt(yearSelect.value);
+                const selectedDiwText = diwSelect.options[diwSelect.selectedIndex].text;
+
+                ciblesTableBody.innerHTML = '';
+                ciblesContainer.style.display = 'none';
+
+                if (!selectedDiwCode || !startYear) return;
+
+                // Update UI Headers
+                headerY1.textContent = startYear;
+                headerY2.textContent = startYear + 1;
+                headerY3.textContent = startYear + 2;
+                selectedYearRangeSpan.textContent = `${startYear} - ${startYear + 2}`;
+
+                ciblesContainer.style.display = 'block';
+                loadingSpinner.style.display = 'block';
+                hiddenDiwCodeInput.value = selectedDiwCode;
+                hiddenYearInput.value = startYear;
+                selectedDiwNameSpan.textContent = selectedDiwText;
+
+                fetch(`/Admin/GetCiblesForDiwJson?diwCode=${selectedDiwCode}&year=${startYear}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        loadingSpinner.style.display = 'none';
+                        if (data.length === 0) {
+                            ciblesTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Aucune configuration disponible.</td></tr>';
+                            return;
+                        }
+
+                        data.forEach((cible, index) => {
+                            const row = `
+                                        <tr class="new-row" style="animation-delay: ${index * 0.05}s">
+                                            <td>${cible.axeName}</td>
+                                            <td>${cible.intituleIn}</td>
+
+                                            <td>
+                                                <input type="hidden" name="Cibles[${index}].id_cible1" value="${cible.id_cible1}" />
+                                                <div class="input-group input-group-sm">
+                                                    <input type="number" step="0.01" name="Cibles[${index}].cible1" value="${cible.cible1}" class="form-control text-center" />
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <input type="hidden" name="Cibles[${index}].id_cible2" value="${cible.id_cible2}" />
+                                                <div class="input-group input-group-sm">
+                                                    <input type="number" step="0.01" name="Cibles[${index}].cible2" value="${cible.cible2}" class="form-control text-center" />
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <input type="hidden" name="Cibles[${index}].id_cible3" value="${cible.id_cible3}" />
+                                                <div class="input-group input-group-sm">
+                                                    <input type="number" step="0.01" name="Cibles[${index}].cible3" value="${cible.cible3}" class="form-control text-center" />
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </td>
+                                        </tr>`;
+                            ciblesTableBody.insertAdjacentHTML('beforeend', row);
+                        });
+                    })
+                    .catch(error => {
+                        loadingSpinner.style.display = 'none';
+                        ciblesTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erreur de chargement.</td></tr>';
+                        console.error('Fetch error:', error);
+                    });
+            }
+
+            diwSelect.addEventListener('change', fetchCibles);
+            yearSelect.addEventListener('change', fetchCibles);
+            if (diwSelect.value) fetchCibles();
+        });
+    </script>
+}

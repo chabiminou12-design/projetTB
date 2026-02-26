@@ -1,0 +1,120 @@
+﻿@model PaginatedList<Stat.Models.ViewModels.ValidatedSituationViewModel>
+@{
+    ViewData["Title"] = "Situations Validées";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Consultation</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="ListValidatedSituations" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <select name="searchYear" asp-items="@(new SelectList(ViewBag.Years))" class="form-select">
+                        <option value="">Toutes les années</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="searchType" class="form-select">
+                        <option value="">Tous les types</option>
+                        <option value="Opérationnelle">Opérationnelle</option>
+                        <option value="Stratégique">Stratégique</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name="searchStructure" asp-items="@(new SelectList(ViewBag.Structures, "Value", "Text"))" class="form-select">
+                        <option value="">Toutes les structures</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Période</th>
+                        <th>Type</th>
+                        <th>Structure</th>
+                        <th>Soumis Par</th>
+                        <th>Date de Validation</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr style="cursor: pointer;" onclick="window.location='@Url.Action("ConsulteSituation", "Admin", new { id = item.SituationId })';">
+                            <td>@item.Period</td>
+                            <td>
+                                @switch (item.SituationType)
+                                {
+                                    case "Stratégique":
+                                        <span  class="badge bg-secondary">@item.SituationType</span>
+                                        ;
+                                        break;
+                                    case "Opérationnelle (DRI)":
+                                        <span class="badge bg-info text-dark">@item.SituationType</span>
+                                        ;
+                                        break;
+                                    case "Opérationnelle (DIW)":
+                                        <span class="badge bg-success">@item.SituationType</span>
+                                        ;
+                                        break;
+                                    default:
+                                        <span class="badge bg-light text-dark">@item.SituationType</span>
+                                        ;
+                                        break;
+                                }
+                            </td>
+                            <td>@item.StructureName</td>
+                            <td>@item.SubmittedBy</td>
+                            <td>@item.ValidationDate?.ToString("g")</td>
+                            <td>
+                                <a asp-action="ConsulteSituation" asp-route-id="@item.SituationId" class="btn btn-sm btn-outline-primary">
+                                    Consulter
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+            <nav>
+                <ul class="pagination justify-content-end">
+                    <li class="page-item @prevDisabled">
+                        <a asp-action="ListValidatedSituations"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           asp-route-searchYear="@ViewData["CurrentYear"]"
+                           asp-route-searchType="@ViewData["CurrentType"]"
+                           asp-route-searchStructure="@ViewData["CurrentStructure"]"
+                           class="page-link">Précédent</a>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a asp-action="ListValidatedSituations"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           asp-route-searchYear="@ViewData["CurrentYear"]"
+                           asp-route-searchType="@ViewData["CurrentType"]"
+                           asp-route-searchStructure="@ViewData["CurrentStructure"]"
+                           class="page-link">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

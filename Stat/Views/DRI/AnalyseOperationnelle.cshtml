@@ -1,0 +1,201 @@
+﻿@model Stat.Models.ViewModels.NiveauOpDRIViewModel
+@{
+    ViewData["Title"] = "Analyse Opérationnelle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@* ✨ 1. CSS for the sticky elements is defined here *@
+<style>
+    .sticky-top-filters {
+        position: sticky;
+        top: 0;
+        z-index: 1020; /* High z-index to stay on top */
+        background-color: #f8f9fa; /* Match page background */
+    }
+
+    /* The table header will also be made sticky by this class */
+    #operationalTable thead {
+        position: sticky;
+        z-index: 1010; /* Slightly lower z-index than filters */
+        background-color: white;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Analyse Détaillée</li>
+    </ol>
+
+    @* ✨ 2. The filter card gets an ID so JavaScript can find it *@
+    <div id="filter-card" class="card mb-4 animated-fade-in sticky-top-filters">
+        <div class="card-header">
+            <i class="fas fa-filter"></i> Filtres de Période et d'Indicateurs
+        </div>
+        <div class="card-body">
+            <form id="filterForm" asp-action="AnalyseOperationnelle" method="get" class="row g-3">
+                <div class="col-md-3"><select asp-for="SelectedYear" asp-items="Model.YearOptions" class="form-select auto-submit"><option value="">-- Année --</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedSemester" class="form-select auto-submit" id="semesterSelect"><option value="">-- Semestre --</option><option value="1">1er Semestre</option><option value="2">2ème Semestre</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedTrimester" class="form-select auto-submit" id="trimesterSelect"><option value="">-- Trimestre --</option><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option></select></div>
+                <div class="col-md-3">
+                    <select asp-for="SelectedMonth" class="form-select auto-submit" id="monthSelect">
+                        <option value="">-- Mois --</option>@for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4"><select asp-for="SelectedAxe" asp-items="Model.AxeOptions" class="form-select" id="axeSelect"><option value="">-- Axe --</option></select></div>
+                <div class="col-md-4"><select asp-for="SelectedIndicateur" asp-items="Model.IndicateurOptions" class="form-select auto-submit" id="indicatorSelect"><option value="">-- Indicateur --</option></select></div>
+                @* REPLACE the div containing the reset button (Line 58 in your uploaded file) with this: *@
+                <div class="col-md-4 d-flex gap-2">
+                    <a asp-action="AnalyseOperationnelle" class="btn btn-secondary flex-grow-1"><i class="fas fa-sync-alt"></i> Réinitialiser</a>
+                    <button type="submit" asp-action="ExportAnalyseOperationnelle" class="btn btn-success flex-grow-1">
+                        <i class="fas fa-file-excel"></i> Exporter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card animated-fade-in">
+        <div class="card-body">
+            <table id="operationalTable" class="table table-hover professional-table" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="display:none;">Axe</th>
+                        <th>Indicateur</th>
+                        <th class="text-center">Numérateur</th>
+                        <th class="text-center">Dénominateur</th>
+                        <th class="text-center">Taux Réalisé (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.PerformanceResults)
+                    {
+                        <tr>
+                            <td style="display:none;">@item.AxeName</td>
+                            <td>@item.IndicatorName</td>
+                            <td class="text-center">@item.SumNumerateur.ToString("N0")</td>
+                            <td class="text-center">@item.SumDenominateur.ToString("N0")</td>
+                            <td class="text-center">@item.Taux.ToString("F2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* ✨ 3. THIS JAVASCRIPT BLOCK IS THE KEY TO THE SOLUTION *@
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterCard = document.getElementById('filter-card');
+            const tableHeader = document.querySelector('#operationalTable thead');
+
+            if (filterCard && tableHeader) {
+                // This function calculates the height of the filters and sets the 'top'
+                // position for the sticky table header.
+                const setTableHeaderPosition = () => {
+                    const filterCardHeight = filterCard.offsetHeight;
+                    tableHeader.style.top = filterCardHeight + 'px';
+                };
+
+                // Run the function once on page load
+                setTableHeaderPosition();
+
+                // Re-run the function if the window is resized (e.g., user rotates phone)
+                window.addEventListener('resize', setTableHeaderPosition);
+            }
+        });
+    </script>
+    <script>
+        // NO CHANGES NEEDED TO THIS SCRIPT
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterForm = document.getElementById('filterForm');
+            const axeSelect = document.getElementById('axeSelect');
+            const indicatorSelect = document.getElementById('indicatorSelect');
+            const semesterSelect = document.getElementById('semesterSelect');
+            const trimesterSelect = document.getElementById('trimesterSelect');
+            const monthSelect = document.getElementById('monthSelect');
+
+            function updateDateFilters() {
+                const semester = semesterSelect.value;
+                const trimester = trimesterSelect.value;
+                Array.from(trimesterSelect.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    let show = true;
+                    if (semester === '1' && !(opt.value === '1' || opt.value === '2')) show = false;
+                    if (semester === '2' && !(opt.value === '3' || opt.value === '4')) show = false;
+                    opt.style.display = show ? '' : 'none';
+                });
+                Array.from(monthSelect.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    let show = true;
+                    const month = parseInt(opt.value);
+                    if (trimester) {
+                        if (trimester === '1' && !(month >= 1 && month <= 3)) show = false;
+                        if (trimester === '2' && !(month >= 4 && month <= 6)) show = false;
+                        if (trimester === '3' && !(month >= 7 && month <= 9)) show = false;
+                        if (trimester === '4' && !(month >= 10 && month <= 12)) show = false;
+                    } else if (semester) {
+                        if (semester === '1' && !(month >= 1 && month <= 6)) show = false;
+                        if (semester === '2' && !(month >= 7 && month <= 12)) show = false;
+                    }
+                    opt.style.display = show ? '' : 'none';
+                });
+            }
+
+            semesterSelect.addEventListener('change', function () {
+                trimesterSelect.value = ""; monthSelect.value = "";
+                updateDateFilters();
+                filterForm.submit();
+            });
+            trimesterSelect.addEventListener('change', function () {
+                monthSelect.value = "";
+                updateDateFilters();
+                filterForm.submit();
+            });
+            document.querySelectorAll('.auto-submit').forEach(select => {
+                select.addEventListener('change', function () { filterForm.submit(); });
+            });
+            axeSelect.addEventListener('change', function () {
+                const axeId = this.value;
+                indicatorSelect.disabled = true;
+                indicatorSelect.innerHTML = '<option>Chargement...</option>';
+                fetch(`/DRI/GetIndicatorsByAxeJson?axeId=${axeId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        indicatorSelect.innerHTML = '<option value="">-- Indicateur --</option>';
+                        data.forEach(indicator => { indicatorSelect.innerHTML += `<option value="${indicator.value}">${indicator.text}</option>`; });
+                        indicatorSelect.disabled = false;
+                        filterForm.submit();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching indicators:', error);
+                        indicatorSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                    });
+            });
+            updateDateFilters();
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#operationalTable').DataTable({
+                language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json" },
+                responsive: true,
+                paging: false,
+                info: false,
+                "columnDefs": [
+                    { "visible": false, "targets": 0 }
+                ],
+                rowGroup: {
+                    dataSrc: 0
+                },
+                "order": [[0, 'asc']]
+            });
+        });
+    </script>
+}

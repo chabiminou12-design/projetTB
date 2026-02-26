@@ -1,0 +1,87 @@
+﻿
+@model Stat.Models.ViewModels.AddUserViewModel
+@{
+    ViewData["Title"] = $"Ajouter un Utilisateur {Model.UserType}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="AddUserForm" method="post">
+                
+                <input type="hidden" asp-for="UserType" />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label asp-for="FirstNmUser"></label><input asp-for="FirstNmUser" class="form-control" required /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="LastNmUser"></label><input asp-for="LastNmUser" class="form-control" required /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="MailUser"></label><input asp-for="MailUser" class="form-control" required /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="TelUser"></label><input asp-for="TelUser" class="form-control" required /></div>
+                    <div class="col-md-6 mb-3"><label asp-for="Date_deb_Affect"></label><input type="date" asp-for="Date_deb_Affect" class="form-control" required /></div>
+                </div>
+
+                @if (Model.UserType == "DIW" || Model.UserType == "DRI")
+                {
+                    <div class="mb-3">
+                        <label asp-for="SelectedDRI">Direction Régionale</label>
+                        <select asp-for="SelectedDRI" asp-items="Model.DRIOptions" class="form-select" id="driSelect"><option value="">Sélectionnez une DRI</option></select>
+                    </div>
+                }
+                @if (Model.UserType == "DC")
+                {
+                    <h4 class="mt-4">Assignation de Structure</h4>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SelectedDC">Direction Centrale</label>
+                            <select asp-for="SelectedDC" asp-items="Model.DCOptions" class="form-select">
+                                <option value="">Sélectionnez une DC</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+                @if (Model.UserType == "DIW")
+                {
+                    <div class="mb-3">
+                        <label asp-for="SelectedDIW">Direction de Wilaya</label>
+                        <select asp-for="SelectedDIW" class="form-select" id="diwSelect" disabled><option value="">Sélectionnez d'abord une DRI</option></select>
+                    </div>
+                }
+                
+                <button type="submit" class="btn btn-primary">Créer Utilisateur</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const driSelect = document.getElementById('driSelect');
+            const diwSelect = document.getElementById('diwSelect');
+
+            if (driSelect && diwSelect) {
+                driSelect.addEventListener('change', function () {
+                    const driCode = this.value;
+                    diwSelect.disabled = true;
+                    diwSelect.innerHTML = '<option>Chargement...</option>';
+
+                    if (!driCode) return;
+
+                    fetch(`/Admin/GetDiwsByDri?driCode=${driCode}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            diwSelect.innerHTML = '<option value=\"\">Sélectionnez une DIW</option>';
+                            data.forEach(diw => {
+                                diwSelect.innerHTML += `<option value=\"${diw.value}\">${diw.text}</option>`;
+                            });
+                            diwSelect.disabled = false;
+                        });
+                });
+            }
+        });
+    </script>
+}

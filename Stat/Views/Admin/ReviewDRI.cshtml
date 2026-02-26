@@ -1,0 +1,114 @@
+﻿@model Stat.Models.ViewModels.AdminConsulteDriViewModel
+@{
+    ViewData["Title"] = $"Détails: Situation {Model.Situation.Month} {Model.Situation.Year}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <h4 class="text-muted">Structure: @ViewBag.StructureName</h4>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="ListPendingSituations">Situations en Attente</a></li>
+        <li class="breadcrumb-item active">Révision Performance DRI</li>
+    </ol>
+
+   
+    @if (Model.Situation?.RejectionHistories != null && Model.Situation.RejectionHistories.Any())
+    {
+        <div class="card mb-4 border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-history me-2"></i>Historique des Rejets
+            </div>
+            <div class="card-body">
+                @foreach (var history in Model.Situation.RejectionHistories.OrderByDescending(h => h.RejectionDate))
+                {
+                    <div class="mb-3 p-2 border rounded bg-light">
+                        <p class="text-danger fst-italic mb-1">"@history.Comment"</p>
+                        <small class="text-muted">
+                            Rejeté le: @history.RejectionDate.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-tasks me-1"></i>
+            Indicateurs de Performance Opérationnels (DRI)
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Indicateur</th>
+                            <th>Numérateur</th>
+                            <th>Dénominateur</th>
+                            <th>Taux (%)</th>
+                            <th>Cible (%)</th>
+                            <th>Écart (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dec in Model.Declarations.OrderBy(d => d.IdIndicacteur))
+                        {
+                            <tr>
+                                <td>@dec.Indicateur.IntituleIn</td>
+                                <td class="text-center">@dec.Numerateur</td>
+                                <td class="text-center">@dec.Denominateur</td>
+                                <td class="text-center">@dec.taux?.ToString("F2")</td>
+                                <td class="text-center">@dec.Cible?.ToString("F2")</td>
+                                <td class="text-center">@dec.ecart?.ToString("F2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Situation.Statut == 1)
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">Actions de Validation</div>
+            <div class="card-body text-center">
+                <p>Veuillez réviser attentivement cette situation avant de la valider ou de la rejeter.</p>
+
+                <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                    <i class="fas fa-times-circle me-2"></i>Rejeter
+                </button>
+
+                <form asp-action="ValidateSituation" method="post" class="d-inline-block ms-2">
+                    <input type="hidden" name="id" value="@Model.Situation.IDSituation" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check-circle me-2"></i>Valider
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+        <div class="modal fade" id="rejectModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form asp-action="RejectSituation" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Situation.IDSituation" />
+                        <div class="modal-header">
+                            <h5 class="modal-title">Rejeter la Situation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="rejectionComment" class="form-label">Veuillez fournir le motif du rejet (obligatoire):</label>
+                            <textarea class="form-control" name="comment" rows="4" required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-danger">Confirmer le Rejet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>

@@ -1,0 +1,227 @@
+﻿@{
+    // Cast the ViewBag data to their specific types for easier access
+    var situation = ViewBag.Situation as Stat.Models.Situation;
+    var indicators = ViewBag.Indicators as List<Stat.Models.Indicateurs_DE_PERFORMANCE_OPERATIONNELS>;
+    var targets = ViewBag.Targets as Dictionary<int, float>;
+    var drafts = ViewBag.Drafts as Dictionary<int, Stat.Models.DeclarationDRIDraft>;
+
+    ViewData["Title"] = $"Saisie: {situation.Month} {situation.Year}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .btn-custom {
+        width: 200px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(to right, rgba(7, 182, 128, 1) 50%, rgba(7, 182, 128, 0.8) 100%);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s ease;
+    }
+
+        .btn-custom:hover {
+            background: linear-gradient(to right, rgba(5, 150, 110, 1) 50%, rgba(5, 150, 110, 0.8) 100%);
+        }
+
+        .btn-custom i {
+            font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 10px
+        }
+</style>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="SaisieIndicateurs">Gestion des Situations</a></li>
+        <li class="breadcrumb-item active">Saisie des Données</li>
+    </ol>
+    @{
+
+        if (situation != null && situation.Statut == 2 && situation.RejectionHistories.Any())
+        {
+            <div class="card mb-4 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-history me-2"></i>Historique des Rejets
+                </div>
+                <div class="card-body">
+                    @foreach (var history in situation.RejectionHistories.OrderByDescending(h => h.RejectionDate))
+                    {
+                        <div class="mb-3 p-2 border rounded bg-light">
+                            <p class="text-danger fst-italic mb-1">"@history.Comment"</p>
+                            <small class="text-muted">
+                                Rejeté le: @history.RejectionDate.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <div style="text-align: right;">
+            <button type="button" id="import-excel-btn" class="btn-custom">
+                <i class="fas fa-file-excel me-2"></i>Importer depuis Excel
+            </button>
+            <input type="file" id="excel-importer" style="display: none;" accept=".xlsx, .xls, .csv" />
+        </div>
+        <input type="hidden" name="IDSituation" value="@situation.IDSituation" />
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-file-signature me-1"></i>
+                Indicateurs de Performance Opérationnels DRI
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40%;">Indicateur</th>
+                                <th class="text-center">Cible Annuelle (%)</th>
+                                <th class="text-center">Numérateur</th>
+                                <th class="text-center">Dénominateur</th>
+                                <th class="text-center">Taux Calculé (%)</th>
+                                <th class="text-center">Écart Calculé (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var indicator in indicators)
+                            {
+                                var draft = drafts?.GetValueOrDefault(indicator.IdIndicacteur);
+                                var target = targets?.GetValueOrDefault(indicator.IdIndicacteur) ?? 0;
+                                <tr>
+                                    <td><strong>@indicator.IntituleIn</strong></td>
+                                    <td><input type="text" class="form-control text-center cible" value="@target.ToString("F2")" readonly /></td>
+                                    <td><input name="Indicators[@indicator.IdIndicacteur].Numerateur" class="form-control numerateur" type="number" step="any" value="@draft?.Numerateur" oninput="calculer(this)" /></td>
+                                    <td><input name="Indicators[@indicator.IdIndicacteur].Denominateur" class="form-control denominateur" type="number" step="any" value="@draft?.Denominateur" oninput="calculer(this)" /></td>
+                                    <td><input class="form-control text-center taux" type="text" readonly /></td>
+                                    <td><input class="form-control text-center ecart" type="text" readonly /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">Actions</div>
+            <div class="card-body text-end">
+                <button type="submit" asp-controller="DRI" asp-action="EnregistrerBrouillonDRI" class="btn btn-secondary px-4">
+                    <i class="fas fa-save me-2"></i>Enregistrer en Brouillon
+                </button>
+                <button type="submit" asp-controller="DRI" asp-action="ConfirmerSituationDRI" class="btn btn-success px-4">
+                    <i class="fas fa-check-circle me-2"></i>Confirmer et Envoyer
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/lib/xlsx/xlsx.full.min.js"></script>
+
+    <script>
+        // --- FIX: Rewritten to work with the 'this' element passed from the input ---
+        function calculer(element) {
+            const row = element.closest('tr');
+            if (!row) return;
+
+            const numInput = row.querySelector('.numerateur');
+            const denomInput = row.querySelector('.denominateur');
+            const cibleInput = row.querySelector('.cible');
+            const tauxOutput = row.querySelector('.taux');
+            const ecartOutput = row.querySelector('.ecart');
+
+            const num = parseFloat(numInput.value) || 0;
+            const denom = parseFloat(denomInput.value) || 0;
+            const cible = parseFloat(cibleInput.value) || 0;
+            let taux = 0;
+            let ecart = 0;
+            if (denom !== 0) {
+                taux = (num / denom) * 100;
+                ecart = taux - cible;
+            } else {
+                ecart = 0 - cible;
+            }
+            tauxOutput.value = taux.toFixed(2);
+            ecartOutput.value = ecart.toFixed(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Run initial calculation for all rows that have pre-filled data
+            document.querySelectorAll('.numerateur').forEach(input => {
+                if (input.value) {
+                    calculer(input);
+                }
+            });
+
+            const importBtn = document.getElementById('import-excel-btn');
+            const fileInput = document.getElementById('excel-importer');
+
+            importBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) { return; }
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    const excelDataMap = new Map();
+                    let dataStarted = false;
+                    for (const row of jsonData) {
+                        if (row[0] && row[0].toString().trim() === 'Indicateur') {
+                            dataStarted = true;
+                            continue;
+                        }
+                        if (!dataStarted || !row[0]) continue;
+                        const indicatorName = row[0].toString().trim().replace(/\n/g, ' ');
+                        const numerator = parseFloat(row[1]) || 0;
+                        const denominator = parseFloat(row[2]) || 0;
+                        excelDataMap.set(indicatorName, { numerator, denominator });
+                    }
+
+                    let updatedCount = 0;
+                    document.querySelectorAll('table tbody tr').forEach(row => {
+                        const formIndicatorCell = row.querySelector('td:first-child');
+                        if (!formIndicatorCell) return;
+
+                        const formIndicatorName = formIndicatorCell.innerText.trim();
+                        if (excelDataMap.has(formIndicatorName)) {
+                            const data = excelDataMap.get(formIndicatorName);
+                            const numInput = row.querySelector('.numerateur');
+                            const denomInput = row.querySelector('.denominateur');
+
+                            if (numInput && denomInput) {
+                                numInput.value = data.numerator;
+                                denomInput.value = data.denominator;
+
+                                // --- FIX: Call the corrected 'calculer' with an element from the row ---
+                                calculer(numInput);
+                                updatedCount++;
+                            }
+                        }
+                    });
+                    alert(`${updatedCount} indicateur(s) importé(s) avec succès !`);
+                };
+                reader.readAsArrayBuffer(file);
+                e.target.value = '';
+            });
+        });
+    </script>
+}

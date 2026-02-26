@@ -1,0 +1,30 @@
+﻿<ul class="nav flex-column">
+
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Director" asp-action="Index">
+            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+            &nbsp; Tableau de Bord
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Director" asp-action="ListValidatedSituations">
+            <div class="sb-nav-link-icon"><i class="fas fa-check-double"></i></div>
+            &nbsp; Situations Validées
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Director" asp-action="ListUsers">
+            <i class="fas fa-sitemap"></i> &nbsp; Structure & Utilisateurs
+        </a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" asp-controller="Director" asp-action="Profile">
+        <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
+            &nbsp; Mon Profil
+    </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Access" asp-action="LogOut"><i class="fas fa-sign-out-alt fa-fw me-2"></i> Se déconnecter</a>
+    </li>
+</ul>

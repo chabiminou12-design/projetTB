@@ -1,0 +1,238 @@
+﻿@* ✨ 1. Inject the Authorization Service and Enums *@
+@using Stat.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+<ul class="nav flex-column">
+
+    @* ✨ 2. Add a special link ONLY visible to the Super Admin *@
+    @if ((await AuthorizationService.AuthorizeAsync(User, "SuperAdminOnly")).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-warning" asp-controller="SuperAdmin" asp-action="Index">
+                <i class="nav-icon fas fa-user-shield"></i> Panneau Super Admin
+            </a>
+        </li>
+        
+
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="SuperAdmin" asp-action="ListAdmins"><i class="nav-icon fas fa-user-cog"></i> Gestion des Administrateurs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+                <i class="nav-icon fas fa-users"></i> Gestion Globale des Utilisateurs
+
+                <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+
+            <div class="collapse" id="collapseUsers" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    <a class="nav-link" asp-controller="SuperAdmin" asp-action="ListAllUsers">Voir Tous les Utilisateurs</a>
+                    <a class="nav-link" asp-controller="SuperAdmin" asp-action="AddUser">Créer un Utilisateur</a>
+                </nav>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="SuperAdmin" asp-action="Profile"><i class="nav-icon fas fa-user"></i> Profile</a>
+        </li>
+    }
+
+    @* ✨ 3. Each menu item is now wrapped in a permission check with the CORRECT syntax *@
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ViewAdminDashboard)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Admin" asp-action="Index"><i class="nav-icon fas fa-tachometer-alt"></i> Tableau de bord</a>
+        </li>
+    }
+
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ValidateSituations)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ViewValidatedReports)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsesituations">
+                <i class="nav-icon fas fa-hourglass-half"></i> Gestion Situations <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+            <div class="collapse" id="collapsesituations" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ValidateSituations)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="ListPendingSituations">Situations en Attente</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ViewValidatedReports)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="ListValidatedSituations">Situations Validées</a>
+                    }
+                </nav>
+            </div>
+        </li>
+    }
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ViewUsers)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ManageUsers)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers">
+                <i class="nav-icon fas fa-users-cog"></i> Gestion Utilisateurs <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+            <div class="collapse" id="collapseUsers" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ViewUsers)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="listuser">Lister les Utilisateurs</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageUsers)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="AddUser">Ajouter un Utilisateur</a>
+                    }
+                </nav>
+            </div>
+        </li>
+    }
+
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageDRIs)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ManageDIWs)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ManageDCs)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseStructures">
+                <i class="nav-icon fas fa-sitemap"></i> Gestion Structures <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+            <div class="collapse" id="collapseStructures" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageDRIs)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="listdri">Gérer les DRIs</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageDIWs)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="listdiw">Gérer les DIWs</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageDCs)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="GestionDCs">Gérer les DCs</a>
+                    }
+                </nav>
+            </div>
+        </li>
+    }
+
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageOperationalTargets)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ManageStrategicTargets)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseCibles">
+                <i class="nav-icon fas fa-bullseye"></i> Gestion Cibles <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+            <div class="collapse" id="collapseCibles" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageStrategicTargets)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="GestionCiblesStrat">Cibles Stratégiques</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageOperationalTargets)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="GestionCiblesDri">Cibles Opérationnelles DRI</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageOperationalTargets)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="GestionCiblesOps">Cibles Opérationnelles DIW</a>
+                    }  
+                </nav>
+            </div>
+        </li>
+    }
+
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageOperationalIndicators)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ManageStrategicIndicators)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseIndicateursAdmin">
+                <i class="nav-icon fas fa-tasks"></i> Gestion Indicateurs <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+            <div class="collapse" id="collapseIndicateursAdmin" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageStrategicIndicators)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="ListIndicateursStrat">Indicateurs Stratégiques</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageOperationalIndicators)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="ListIndicateursDri">Indicateurs de Performance</a>
+                        <a class="nav-link" asp-controller="Admin" asp-action="ListIndicateursOps">Indicateurs Opérationnels</a>
+                        
+                    }
+                </nav>
+            </div>
+        </li>
+    }
+
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ViewOperationalAnalysis)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ViewStrategicAnalysis)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseNiveaux">
+                <i class="nav-icon fas fa-chart-line"></i> Tableau de Bord Niveaux <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+            <div class="collapse" id="collapseNiveaux" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ViewOperationalAnalysis)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="NiveauOperationnel">Niveau Opérationnel</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ViewStrategicAnalysis)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="NiveauStrategique">Niveau Stratégique</a>
+                    }
+                </nav>
+            </div>
+        </li>
+    }
+
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageAxes)).Succeeded || (await AuthorizationService.AuthorizeAsync(User, Permissions.ManageObjectives)).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseParametrage">
+                <i class="nav-icon fas fa-cogs"></i> Paramétrage <div class="sb-sidenav-collapse-arrow ms-auto">
+                    <i class="fas fa-angle-down"></i>
+                </div>
+            </a>
+            <div class="collapse" id="collapseParametrage" data-bs-parent="#app-sidebar">
+                <nav class="nav flex-column ms-3">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageAxes)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="GestionAxes">Gérer les Axes</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageObjectives)).Succeeded)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="GestionObjectifs">Gérer les Objectifs</a>
+                    }
+                </nav>
+            </div>
+        </li>
+    }
+    @if ((await AuthorizationService.AuthorizeAsync(User, Permissions.ManageRapports)).Succeeded)
+        {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Admin" asp-action="ConsulteRapports">
+                <i class="fas fa-folder-open"></i> &nbsp;&nbsp; Consulter Rapports
+            </a>
+        </li>
+        }
+    @if (User.IsInRole("Admin") && !(await AuthorizationService.AuthorizeAsync(User, "SuperAdminOnly")).Succeeded)
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Admin" asp-action="Profile"><i class="nav-icon fas fa-user"></i> Profile</a>
+        </li>
+    }
+    
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Access" asp-action="LogOut"><i class="fas fa-sign-out-alt fa-fw me-2"></i> Se déconnecter</a>
+    </li>
+
+</ul>

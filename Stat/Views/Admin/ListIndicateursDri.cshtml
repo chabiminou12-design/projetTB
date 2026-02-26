@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Stat.Models.Indicateurs_DE_PERFORMANCE_OPERATIONNELS>
+@{
+    ViewData["Title"] = "Indicateurs de Performance DRI";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+            <span>Liste des Indicateurs</span>
+            <a asp-action="AddIndicateurDri" class="btn btn-primary btn-sm">Ajouter un Indicateur</a>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Intitulé</th>
+                        <th>Catégorie</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model) {
+                        <tr>
+                            <td>@item.IdIndicacteur</td>
+                            <td>@item.IntituleIn</td>
+                            <td>Axe @item.IdCategIn</td>
+                            <td>
+                                <a asp-action="EditIndicateurDri" asp-route-id="@item.IdIndicacteur" class="btn btn-warning btn-sm">Modifier</a>
+                                <form asp-action="DeleteIndicateurDri" asp-route-id="@item.IdIndicacteur" method="post" style="display:inline;" onsubmit="return confirm('Supprimer cet indicateur ?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

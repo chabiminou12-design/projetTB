@@ -1,0 +1,260 @@
+﻿/* wwwroot/css/theme.css */
+/* FINAL, ENHANCED VERSION */
+
+/* Import a professional, modern font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --sidebar-width: 260px;
+    --topnav-height: 60px;
+    --primary-gradient: linear-gradient(90deg, rgba(1, 142, 145, 1) 0%, rgba(7, 182, 128, 1) 50%, rgba(1, 155, 117, 1) 100%);
+    --sidebar-link-color: rgba(255, 255, 255, 0.8);
+    --sidebar-link-hover-bg: rgba(255, 255, 255, 0.1);
+    --sidebar-link-active-color: #ffffff;
+    --content-bg: #f8f9fa; /* Slightly softer background */
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer, more pronounced shadow */
+    --border-color: #e9ecef;
+    --primary-color: #04918f; /* A single color from your gradient for consistency */
+}
+
+/* Define a fade-in animation for page content */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body {
+    background-color: var(--content-bg);
+    font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; /* Use the new font */
+}
+
+#app-wrapper {
+    padding-left: var(--sidebar-width);
+    transition: padding-left 0.3s ease;
+}
+
+#app-topnav {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--topnav-height);
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 1000;
+    transition: left 0.3s ease;
+}
+
+    #app-topnav .sidebar-toggle {
+        font-size: 1.25rem;
+        color: #6c757d;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+        #app-topnav .sidebar-toggle:hover {
+            color: var(--primary-color);
+        }
+
+#app-sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--primary-gradient);
+    z-index: 1001;
+    transition: margin-left 0.3s ease;
+}
+
+    #app-sidebar .sidebar-header {
+        height: var(--topnav-height);
+        display: flex;
+        align-items: center;
+        padding: 0 1.5rem;
+        color: white;
+    }
+
+        #app-sidebar .sidebar-header img {
+            width: 35px;
+            margin-right: 0.75rem;
+        }
+
+    /* Enhanced sidebar links with smooth transitions */
+    #app-sidebar .nav-link {
+        color: var(--sidebar-link-color);
+        padding: 0.8rem 1.5rem;
+        display: flex;
+        align-items: center;
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease-in-out;
+    }
+
+        #app-sidebar .nav-link:hover {
+            background-color: var(--sidebar-link-hover-bg);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Active link styling */
+        #app-sidebar .nav-link.active {
+            color: var(--sidebar-link-active-color);
+            background-color: var(--sidebar-link-hover-bg);
+            border-left-color: #fff;
+            font-weight: 600;
+        }
+
+        #app-sidebar .nav-link .nav-icon {
+            width: 20px;
+            margin-right: 1rem;
+            text-align: center;
+        }
+
+#app-content {
+    padding-top: var(--topnav-height);
+    min-height: 100vh;
+}
+
+    /* Add the fade-in animation to the main content container */
+    #app-content > .container-fluid {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+/* Toggled sidebar styles */
+#app-wrapper.sidebar-toggled {
+    padding-left: 0;
+}
+
+    #app-wrapper.sidebar-toggled #app-sidebar {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+
+    #app-wrapper.sidebar-toggled #app-topnav {
+        left: 0;
+    }
+
+/* General component styling */
+.card {
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color); /* Subtle border for definition */
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+    /* Add a hover effect to cards that are links */
+    a.card-link .card:hover, .card.card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+.initials-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Interactive table rows */
+.table-hover tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+/* --- NEW: Loading Spinner Styles --- */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 9999;
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: .3em;
+}
+/* Add this to your wwwroot/css/theme.css file */
+
+/* General table enhancements */
+.professional-table thead {
+    background-color: #f8f9fa; /* Lighter grey header */
+    border-bottom: 2px solid #0d6efd; /* Blue accent line */
+}
+
+    .professional-table thead th {
+        font-weight: 600; /* Bolder header text */
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        vertical-align: middle;
+        color: #495057;
+    }
+
+.professional-table tbody tr:hover {
+    background-color: #e9ecef; /* Subtle hover effect */
+    cursor: pointer;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animated-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Enhancements for the 'Écart' (Gap) column */
+.ecart-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+    .ecart-cell .ecart-icon {
+        font-size: 1.2rem;
+    }
+
+.ecart-positive {
+    color: #198754; /* Bootstrap success green */
+}
+
+.ecart-negative {
+    color: #dc3545; /* Bootstrap danger red */
+}
+
+.fs-15 {
+    font-size: 12px !important;
+    font-weight: bold !important;
+}
+

@@ -1,0 +1,66 @@
+﻿@model Stat.Models.ViewModels.AdminConsulteStratViewModel
+@{
+    
+    ViewData["Title"] = $"Détails: Situation {Model.Situation.Month} {Model.Situation.Year}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <h4 class="text-muted">Structure: @ViewBag.StructureName</h4>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="ListValidatedSituations">Situations Validées</a></li>
+        <li class="breadcrumb-item active">Détails Stratégiques</li>
+    </ol>
+
+    <div class="d-flex justify-content-end mb-3 gap-2">
+        <a asp-controller="@ViewBag.CurrentController" asp-action="ExportToExcel" asp-route-id="@Model.Situation.IDSituation" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Exporter vers Excel
+        </a>
+        <a asp-controller="@ViewBag.CurrentController" asp-action="ExportToPdf" asp-route-id="@Model.Situation.IDSituation" class="btn btn-danger">
+            <i class="fas fa-file-pdf"></i> Exporter vers PDF
+        </a>
+    </div>
+
+    @foreach (var axe in Model.Axes)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                Axe: @axe.AxeName
+            </div>
+            <div class="card-body">
+                @foreach (var objectif in axe.Objectifs)
+                {
+                    <h5 class="mt-3"><em>Objectif: @objectif.ObjectifName</em></h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Indicateur</th>
+                                    <th>Numérateur</th>
+                                    <th>Dénominateur</th>
+                                    <th>Taux (%)</th>
+                                    <th>Cible (%)</th>
+                                    <th>Écart (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var dec in objectif.Declarations.OrderBy(d => d.IdIndic))
+                                {
+                                    <tr>
+                                        <td>@dec.IndicateurStrategique.IntituleIn</td>
+                                        <td class="text-center">@dec.Numerateur</td>
+                                        <td class="text-center">@dec.Denominateur</td>
+                                        <td class="text-center">@dec.taux?.ToString("F2")</td>
+                                        <td class="text-center">@dec.Cible?.ToString("F2")</td>
+                                        <td class="text-center">@dec.ecart?.ToString("F2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,162 @@
+﻿@model PaginatedList<Stat.Models.User>
+
+@{
+    ViewData["Title"] = "Liste des Utilisateurs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var roleNames = ViewBag.RoleNames as Dictionary<int, string>;
+    var structureNames = ViewBag.StructureNames as Dictionary<string, string>;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Liste des Utilisateurs</li>
+    </ol>
+
+    <div class="card"> 
+        <a asp-action="AddUser" class="btn btn-primary btn-sm" style="width:250px;">
+            <i class="fas fa-plus-circle me-1"></i> Ajouter un USER
+        </a>
+        <div class="card-header">
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Liste des utilisateurs</h5>
+                <form asp-action="listuser" method="get" class="d-flex">
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control form-control-sm me-2" placeholder="Rechercher..." />
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered mt-2">
+                    <thead>
+                        <tr>
+                            <th>Nom d'utilisateur</th>
+                            <th>Prénom</th>
+                            <th>Nom</th>
+                            <th>Structure</th>
+                            <th>Téléphone</th>
+                            <th>Rôle</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            
+                            @if (item.Statut == 3  || item.Statut == 4)
+                            {
+                                // Ne rien faire pour l'admin ou le statut 4. La boucle passera à l'utilisateur suivant.
+                            }
+                            else
+                            {
+                                // Afficher la ligne pour tous les autres utilisateurs
+                                <tr>
+                                    <td>@item.User_name</td>
+                                    <td>@item.FirstNmUser</td>
+                                    <td>@item.LastNmUser</td>
+                                    <!-- <td>@item.MailUser</td> -->
+                                    <td>
+                                        @{
+                                            // Par défaut, si aucun nom n'est trouvé
+                                            var structureName = "Non assigné";
+
+                                            // Tenter de trouver le nom correspondant au code
+                                            if (structureNames != null &&
+                                            item.CodeDIW != null &&
+                                            structureNames.TryGetValue(item.CodeDIW, out var name))
+                                            {
+                                                structureName = name;
+                                            }
+                                        }
+                                        @structureName
+                                    </td>
+                                    <td>@item.TelUser</td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">
+                                            @(roleNames.TryGetValue(item.Statut, out var roleName) ? roleName : "Inconnu")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            @if (item.Statut == 3)
+                                            {
+                                                <span class="badge bg-secondary">Non modifiable</span>
+                                            }
+                                            else
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@item.ID_User" class="btn btn-info btn-sm @(item.IsActive ? "" : "disabled")">Modifier</a>
+                                                <button class="btn btn-sm toggle-status @(item.IsActive ? "btn-danger" : "btn-success")" data-id="@item.ID_User">
+                                                    @(item.IsActive ? "Désactiver" : "Activer")
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-end mt-3">
+                    @{
+                        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                    }
+                    <li class="page-item @prevDisabled">
+                        <a asp-action="listuser"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           class="page-link">Précédent</a>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a asp-action="listuser"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           class="page-link">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".toggle-status").click(function () {
+                var button = $(this);
+                var userId = button.data("id");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Admin/ToggleIsActive",
+                    data: { id: userId },
+                    success: function (response) {
+                        if (response.newStatus === true) {
+                            button.text("Désactiver").removeClass("btn-success").addClass("btn-danger");
+                            button.closest("tr").find(".btn-info").removeClass("disabled");
+                        } else {
+                            button.text("Activer").removeClass("btn-danger").addClass("btn-success");
+                            button.closest("tr").find(".btn-info").addClass("disabled");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

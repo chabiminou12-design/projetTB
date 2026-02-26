@@ -1,0 +1,140 @@
+﻿@using System.Security.Claims;
+@model Stat.Models.ViewModels.DirectorUsersViewModel
+@{
+    ViewData["Title"] = "Personnel sous Supervision";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <h4 class="text-muted mb-4">@Model.StructureType @Model.StructureName</h4>
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord</a></li>
+        <li class="breadcrumb-item active">Utilisateurs</li>
+    </ol>
+
+    @if (Model.Groups.Any())
+    {
+        <div class="row">
+            @foreach (var group in Model.Groups)
+            {
+                // ** 1. FILTRAGE ET TRI DES UTILISATEURS **
+
+                // Isoler l'utilisateur actuel (si présent dans le groupe)
+                var currentUserInGroup = group.Users.FirstOrDefault(user => user.UserId == currentUserId);
+
+                // Filtrer les autres utilisateurs (tous les utilisateurs SAUF l'utilisateur actuel)
+                var otherUsers = group.Users.Where(user => user.UserId != currentUserId);
+
+                // Appliquer la séquence de tri à la liste des autres utilisateurs
+                var orderedOtherUsers = otherUsers.OrderBy(user =>
+                {
+                    // 1. Directeur
+                    if (user.Role != null && user.Role.StartsWith("DIRECTEUR", StringComparison.OrdinalIgnoreCase)) return 1;
+                    // 2. Agent validateur (DRI ou autre)
+                    if (user.Role != null && user.Role.StartsWith("Agent validateur", StringComparison.OrdinalIgnoreCase)) return 2;
+                    // 3. Agent (DIW, DC, ou générique)
+                    if (user.Role != null && user.Role.StartsWith("Agent", StringComparison.OrdinalIgnoreCase)) return 3;
+                    // 4. Autres rôles (par défaut)
+                    return 99;
+                });
+
+                // Compte correct : le nombre d'utilisateurs qui seront affichés dans le tableau.
+                var displayCount = orderedOtherUsers.Count();
+                // Note: La comparaison StringComparison.OrdinalIgnoreCase est utilisée pour un tri insensible à la casse.
+
+                <div class="col-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <i class="fas fa-users me-2"></i><strong>@group.GroupName </strong>
+                            <span class="badge bg-secondary float-end">@displayCount agents</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 30%;">Nom Complet</th>
+                                            <th style="width: 20%;">Rôle</th>
+                                            <th style="width: 25%;">Contact</th>
+                                            <th style="width: 25%;">Dernière Activité</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (orderedOtherUsers.Any())
+                                        {
+                                            @foreach (var user in orderedOtherUsers) // Utilisation de la liste triée
+                                            {
+                                                @if (user.UserId == currentUserId)
+                                                {
+                                                }
+                                                else
+                                                { 
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                @{
+                                                                    // Assurez-vous que FullName n'est pas nul ou vide avant Substring
+                                                                    var initial = !string.IsNullOrEmpty(user.FullName) ? user.FullName.Substring(0, 1) : "?";
+                                                                }
+                                                                <div class="avatar bg-primary text-white rounded-circle me-2 d-flex justify-content-center align-items-center" style="width: 32px; height: 32px; font-size: 14px;">
+                                                                    @initial
+                                                                </div>
+
+                                                                @if (user.UserId == currentUserId)
+                                                                {
+                                                                    <div>
+                                                                        @user.FullName <span style="font-weight: bold; color: green">(Vous)</span>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div>
+                                                                        @user.FullName
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                        <td><span class="badge bg-info text-dark">@user.Role</span></td>
+                                                        <td>
+                                                            <div class="small"><i class="fas fa-envelope me-1 text-muted"></i> @user.Email</div>
+                                                            <div class="small"><i class="fas fa-phone me-1 text-muted"></i> @user.Phone</div>
+                                                        </td>
+                                                        <td class="text-muted small">
+                                                            @if (user.LastConnection.HasValue)
+                                                            {
+                                                                <i class="far fa-clock me-1"></i> @user.LastConnection.Value.ToString("dd/MM/yyyy HH:mm")
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-warning">Jamais connecté</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-3">Aucun utilisateur trouvé.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            Aucun personnel n'a été trouvé sous votre structure.
+        </div>
+    }
+</div>

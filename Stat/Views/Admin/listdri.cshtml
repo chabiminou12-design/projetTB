@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Stat.Models.DRI>
+@{
+    ViewData["Title"] = "Gérer les DRIs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord</a></li>
+        <li class="breadcrumb-item active">Liste des DRIs</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-sitemap me-1"></i>Directions Régionales</span>
+            <a asp-action="AddDRI" class="btn btn-primary btn-sm"><i class="fas fa-plus-circle me-1"></i> Ajouter une DRI</a>
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Libellé</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dri in Model)
+                    {
+                        <tr>
+                            <td><code>@dri.CodeDRI</code></td>
+                            <td>@dri.LibelleDRI</td>
+                            <td class="text-center">
+                                <a asp-action="DeleteDRI" asp-route-id="@dri.CodeDRI" class="btn btn-danger btn-sm">Supprimer</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const datatablesSimple = document.getElementById('datatablesSimple');
+            if (datatablesSimple) {
+                const dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+                    perPageSelect: [10, 25, 50, 100],
+                    labels: {
+                        placeholder: "Rechercher...",
+                        perPage: "{select} entrées par page",
+                        noRows: "Aucun enregistrement trouvé",
+                        info: "Affichage de {start} à {end} sur {rows} entrées",
+                    }
+                });
+
+                // --- THIS IS THE NEW CODE THAT FIXES THE DESIGN ---
+                // This function runs after the table has been created
+                dataTable.on('datatable.init', function () {
+                    const paginationList = document.querySelector('.dataTable-pagination-list');
+                    if (paginationList) {
+                        // Add Bootstrap's main pagination class to the container
+                        paginationList.classList.add('pagination', 'pagination-sm');
+                    }
+
+                    const pageButtons = document.querySelectorAll('.dataTable-pagination-list .page-item a');
+                    pageButtons.forEach(button => {
+                        // Add Bootstrap's class to each button link
+                        button.classList.add('page-link');
+                    });
+
+                    const selector = document.querySelector('.dataTable-selector');
+                    if (selector) {
+                        // Style the "entries per page" dropdown
+                        selector.classList.add('form-select', 'form-select-sm');
+                    }
+
+                    const searchInput = document.querySelector('.dataTable-input');
+                    if (searchInput) {
+                        // Style the search box
+                        searchInput.classList.add('form-control', 'form-control-sm');
+                    }
+                });
+            }
+        });
+    </script>
+}

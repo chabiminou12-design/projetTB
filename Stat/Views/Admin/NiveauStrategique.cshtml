@@ -1,0 +1,221 @@
+﻿@model Stat.Models.ViewModels.NiveauStratViewModel
+@{
+    ViewData["Title"] = "Analyse - Niveau Stratégique";
+    Layout = "~/Views/Shared/_Layout1.cshtml";
+}
+
+<style>
+    .sticky-top-filters {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background-color: #f8f9fa;
+    }
+
+    #strategicTable thead {
+        position: sticky;
+        z-index: 1010;
+        background-color: white;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Analyse Stratégique</li>
+    </ol>
+
+    <div id="filter-card" class="card mb-4 animated-fade-in sticky-top-filters">
+        <div class="card-header"><i class="fas fa-filter"></i> Filtres</div>
+        <div class="card-body">
+            <form id="filterForm" asp-action="NiveauStrategique" method="get" class="row g-3 align-items-end">
+                <div class="col-md-3"><select asp-for="SelectedYear" asp-items="Model.YearOptions" class="form-select" id="yearSelect"><option value="">-- Année --</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedSemester" class="form-select" id="semesterSelect"><option value="">-- Semestre --</option><option value="1">1er Semestre</option><option value="2">2ème Semestre</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedTrimester" class="form-select" id="trimesterSelect"><option value="">-- Trimestre --</option><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option></select></div>
+                <div class="col-md-3">
+                    <select asp-for="SelectedMonth" class="form-select" id="monthSelect">
+                        <option value="">-- Mois --</option>@for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4"><select asp-for="SelectedAxe" asp-items="Model.AxeOptions" class="form-select" id="axeSelect"><option value="">-- Axe --</option></select></div>
+                <div class="col-md-4"><select asp-for="SelectedObjectif" asp-items="Model.ObjectifOptions" class="form-select" id="objectifSelect" disabled="@(string.IsNullOrEmpty(Model.SelectedAxe))"><option value="">-- Objectif --</option></select></div>
+                @* REPLACE the div containing the reset button (Line 8 in your uploaded file) with this: *@
+                <div class="col-md-2 d-flex gap-2">
+                    <a asp-action="NiveauStrategique" class="btn btn-secondary w-100">Réinitialiser</a>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" asp-action="ExportNiveauStrategique" class="btn btn-success w-100" disabled="@(Model.IsSearchPerformed ? null : "disabled")">
+                        <i class="fas fa-file-excel"></i> Exporter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card animated-fade-in">
+        <div class="card-body">
+            @if (!Model.IsSearchPerformed)
+            {
+                <div class="alert alert-info text-center">La vue par défaut montre la performance consolidée. Appliquez des filtres pour affiner les résultats.</div>
+            }
+
+            <table id="strategicTable" class="table table-hover professional-table" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Axe</th>
+                        <th>Objectif</th>
+                        <th>Indicateur</th>
+                        <th class="text-center">Numérateur</th>
+                        <th class="text-center">Dénominateur</th>
+                        <th class="text-center">Taux Réalisé (%)</th>
+                        <th class="text-center">Cible (%)</th>
+                        <th class="text-center">Écart (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.PerformanceResults.Any() && Model.IsSearchPerformed)
+                    {
+                        <tr><td colspan="8" class="text-center">Aucun résultat trouvé pour les filtres sélectionnés.</td></tr>
+                    }
+                    @foreach (var item in Model.PerformanceResults)
+                    {
+                        <tr>
+                            <td>@item.AxeName</td>
+                            <td>@item.ObjectifName</td>
+                            <td>@item.IndicatorName</td>
+                            <td class="text-center">@item.SumNumerateur.ToString("N0")</td>
+                            <td class="text-center">@item.SumDenominateur.ToString("N0")</td>
+                            <td class="text-center">@item.Taux.ToString("F2")</td>
+                            <td class="text-center">@item.Cible.ToString("F2")</td>
+                            <td class="text-center">
+                                @if (item.Ecart >= 0)
+                                {
+                                    <div class="ecart-cell ecart-positive">
+                                        <i class="fas fa-arrow-up ecart-icon"></i>
+                                        <span>@item.Ecart.ToString("F2")</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="ecart-cell ecart-negative">
+                                        <i class="fas fa-arrow-down ecart-icon"></i>
+                                        <span>@item.Ecart.ToString("F2")</span>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterCard = document.getElementById('filter-card');
+            const tableHeader = document.querySelector('#strategicTable thead');
+
+            if (filterCard && tableHeader) {
+                const setTableHeaderPosition = () => {
+                    const filterCardHeight = filterCard.offsetHeight;
+                    tableHeader.style.top = filterCardHeight + 'px';
+                };
+                setTableHeaderPosition();
+                window.addEventListener('resize', setTableHeaderPosition);
+            }
+        });
+    </script>
+    <script>
+        // Existing script for filters - NO CHANGES NEEDED HERE
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterForm = document.getElementById('filterForm');
+            const yearSelect = document.getElementById('yearSelect');
+            const semesterSelect = document.getElementById('semesterSelect');
+            const trimesterSelect = document.getElementById('trimesterSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            const axeSelect = document.getElementById('axeSelect');
+            const objectifSelect = document.getElementById('objectifSelect');
+            const submitForm = () => {
+                updateDateFilters(); filterForm.submit();
+            };
+            yearSelect.addEventListener('change', submitForm);
+            semesterSelect.addEventListener('change', submitForm);
+            trimesterSelect.addEventListener('change', submitForm);
+            monthSelect.addEventListener('change', submitForm);
+            objectifSelect.addEventListener('change', submitForm);
+            axeSelect.addEventListener('change', () => {
+                objectifSelect.value = "";
+                submitForm();
+            });
+            function updateDateFilters() {
+                const selectedSemester = semesterSelect.value;
+                Array.from(trimesterSelect.options).forEach(opt => {
+                    if (!opt.value) return;
+                    const isVisible = !selectedSemester || (selectedSemester === '1' && (opt.value === '1' || opt.value === '2')) || (selectedSemester === '2' && (opt.value === '3' || opt.value === '4'));
+                    opt.style.display = isVisible ? '' : 'none';
+                });
+                if (trimesterSelect.options[trimesterSelect.selectedIndex]?.style.display === 'none') { trimesterSelect.value = ''; }
+                const finalTrimester = trimesterSelect.value;
+                Array.from(monthSelect.options).forEach(opt => {
+                    if (!opt.value) return;
+                    const month = parseInt(opt.value);
+                    let isVisible = true;
+                    if (finalTrimester) {
+                        if (finalTrimester === '1' && (month < 1 || month > 3)) isVisible = false;
+                        if (finalTrimester === '2' && (month < 4 || month > 6)) isVisible = false;
+                        if (finalTrimester === '3' && (month < 7 || month > 9)) isVisible = false;
+                        if (finalTrimester === '4' && (month < 10 || month > 12)) isVisible = false;
+                    } else if (selectedSemester) {
+                        if (selectedSemester === '1' && (month < 1 || month > 6)) isVisible = false;
+                        if (selectedSemester === '2' && (month < 7 || month > 12)) isVisible = false;
+                    }
+                    opt.style.display = isVisible ? '' : 'none';
+                });
+                if (monthSelect.options[monthSelect.selectedIndex]?.style.display === 'none') { monthSelect.value = ''; }
+            }
+            updateDateFilters();
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            var tableSelector = '#strategicTable';
+
+            // Sécurité : détruire l'instance si elle existe déjà
+            if ($.fn.DataTable.isDataTable(tableSelector)) {
+                $(tableSelector).DataTable().destroy();
+            }
+
+            $(tableSelector).DataTable({
+                language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json" },
+                responsive: true,
+                paging: false, // Important pour voir tous les groupes
+                ordering: true,
+
+                // Cacher les colonnes Axe (0) et Objectif (1) pour éviter la répétition
+                columnDefs: [
+                    { "visible": false, "targets": [0, 1] }
+                ],
+
+                // Le tri est indispensable pour que le groupement fonctionne
+                order: [[0, 'asc'], [1, 'asc']],
+
+                rowGroup: {
+                    dataSrc: [0, 1], // Grouper par Axe puis Objectif
+                    startRender: function (rows, group, level) {
+                        // Style différent selon le niveau (Axe ou Objectif)
+                        var className = level === 0 ? 'table-dark' : 'table-secondary';
+                        var label = level === 0 ? 'AXE : ' : 'OBJECTIF : ';
+
+                        return $('<tr class="' + className + '">')
+                            .append('<td colspan="100%">' + label + group + '</td>');
+                    }
+                }
+            });
+        });
+    </script>
+}

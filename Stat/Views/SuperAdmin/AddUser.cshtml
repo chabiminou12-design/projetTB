@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Choisir le Type d'Utilisateur";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord Super Admin</a></li>
+        <li class="breadcrumb-item active">Ajouter un Utilisateur</li>
+    </ol>
+    <p class="lead">Sélectionnez le type de profil utilisateur que vous souhaitez créer :</p>
+
+    <div class="row g-4 mt-2">
+        <div class="col-md-6 col-lg-3">
+            <a asp-action="AddUserForm" asp-route-userType="Admin" class="text-decoration-none">
+                <div class="card bg-danger text-white text-center h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center"><i class="fas fa-user-shield fa-3x mb-3"></i><h4 class="card-title">Administrateur</h4></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <a asp-action="AddUserForm" asp-route-userType="Director" class="text-decoration-none">
+                <div class="card bg-dark text-white text-center h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <i class="fas fa-user-gear fa-3x mb-3"></i> <h4 class="card-title">Directeur</h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <a asp-action="AddUserForm" asp-route-userType="DC" class="text-decoration-none">
+                <div class="card bg-info text-white text-center h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center"><i class="fas fa-landmark fa-3x mb-3"></i><h4 class="card-title">Utilisateur DC</h4></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <a asp-action="AddUserForm" asp-route-userType="DRI" class="text-decoration-none">
+                <div class="card bg-success text-white text-center h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center"><i class="fas fa-user-shield fa-3x mb-3"></i><h4 class="card-title">Utilisateur DRI</h4></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <a asp-action="AddUserForm" asp-route-userType="DIW" class="text-decoration-none">
+                <div class="card bg-primary text-white text-center h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center"><i class="fas fa-user-tie fa-3x mb-3"></i><h4 class="card-title">Utilisateur DIW</h4></div>
+                </div>
+            </a>
+        </div>
+        
+    </div>
+</div>

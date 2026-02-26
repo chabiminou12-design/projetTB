@@ -1,0 +1,128 @@
+﻿@model Stat.Models.ReviewSituationViewModel
+@{
+    ViewData["Title"] = "Révision de la Situation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord</a></li>
+        <li class="breadcrumb-item"><a asp-action="Indicateurs">Liste des Situations</a></li>
+        <li class="breadcrumb-item active">Révision</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Détails de la Soumission
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <strong>DIW:</strong><p>@Model.Situation.DIWNavigation.LibelleDIW</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Période:</strong><p>@Model.Situation.Month @Model.Situation.Year</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Statut:</strong>
+                    <p>
+                        @switch (Model.Situation.Statut)
+                        {
+                            case 1:
+                                <span class="badge bg-warning text-dark">En Attente de Validation</span>
+                                ; break;
+                            case 2:
+                                <span class="badge bg-danger">Rejeté</span>
+                                ; break;
+                            case 3:
+                                <span class="badge bg-success">Validé</span>
+                                ; break;
+                            default:
+                                <span class="badge bg-secondary">Inconnu</span>
+                                ; break;
+                        }
+                    </p>
+                </div>
+            </div>
+
+            @if (Model.Situation.RejectionHistories != null && Model.Situation.RejectionHistories.Any())
+            {
+                <hr>
+                <strong>Historique des Rejets:</strong>
+                @foreach (var history in Model.Situation.RejectionHistories.OrderByDescending(h => h.RejectionDate))
+                {
+                    <div class="mt-2 p-2 border rounded bg-light">
+                        <p class="text-danger fst-italic mb-1">"@history.Comment"</p>
+                        <small class="text-muted">Rejeté le: @history.RejectionDate.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @foreach (var group in Model.IndicatorGroups)
+    {
+        <h4 class="mt-4 bg-success bg-gradient text-white fw-bolder">@group.CategoryName</h4>
+        @foreach (var declaration in group.Declarations)
+        {
+            <div class="card card-body mb-3">
+                <h5 class="h6 card-title">@declaration.Indicateur.IntituleIn</h5>
+                <div class="row">
+                    <div class="col"><label class="small text-muted">Numérateur</label><p class="fw-bold">@declaration.Numerateur</p></div>
+                    <div class="col"><label class="small text-muted">Dénominateur</label><p class="fw-bold">@declaration.Denominateur</p></div>
+                    <div class="col"><label class="small text-muted">Taux (%)</label><p class="fw-bold">@declaration.taux?.ToString("F2")</p></div>
+                    <div class="col"><label class="small text-muted">Cible</label><p class="fw-bold">@declaration.Cible?.ToString("F2")</p></div>
+                    <div class="col"><label class="small text-muted">Écart</label><p class="fw-bold">@declaration.ecart?.ToString("F2")</p></div>
+                </div>
+            </div>
+        }
+    }
+
+    @if (Model.Situation.Statut == 1)
+    {
+        <div class="card mt-4">
+            <div class="card-header">Actions de Validation</div>
+            <div class="card-body text-center">
+                <p>Veuillez réviser attentivement cette situation avant de la valider ou de la rejeter.</p>
+
+                <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                    <i class="fas fa-times-circle me-2"></i>Rejeter la Situation
+                </button>
+
+                <form asp-action="ConfirmSituation" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Situation.IDSituation" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check-circle me-2"></i>Valider la Situation
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="RejectSituation" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Situation.IDSituation" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Rejeter la Situation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="rejectionComment" class="form-label">Veuillez fournir le motif du rejet (obligatoire):</label>
+                        <textarea class="form-control" id="rejectionComment" name="comment" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Confirmer le Rejet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

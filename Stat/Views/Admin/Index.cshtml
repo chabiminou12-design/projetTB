@@ -1,0 +1,247 @@
+﻿@model Stat.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Tableau de Bord Administrateur";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Stat.Models.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Vue d'ensemble</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6"><div class="card bg-primary text-white mb-4"><div class="card-body"><i class="fas fa-database fa-2x"></i><div class="text-end"><div class="fs-6">@Model.TotalSituations</div><div class="fs-15">Situations Totales</div></div></div></div></div>     
+        <div class="col-xl-3 col-md-6"><div class="card bg-success text-white mb-4"><div class="card-body"><i class="fas fa-cogs fa-2x"></i><div class="text-end"><div class="fs-6">@Model.TotalDiwSituations</div><div class="fs-15">Situations Opérationnelles (DIW) Totales </div></div></div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="card bg-success text-white mb-4"><div class="card-body"><i class="fas fa-cogs fa-2x"></i><div class="text-end"><div class="fs-6">@Model.TotalDriSituations</div><div class="fs-15">Situations Opérationnelles (DRI) Totales </div></div></div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="card bg-info text-white mb-4"><div class="card-body"><i class="fas fa-sitemap fa-2x"></i><div class="text-end"><div class="fs-6">@Model.TotalDcSituations</div><div class="fs-15">Situations Stratégiques (DC) Totales </div></div></div></div></div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6 col-md-12">
+            <div class="card bg-secondary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <i class="fas fa-users fa-3x"></i>
+                        <div class="text-end">
+                            <div class="fs-3 fw-bold">@Model.TotalUsers</div>
+                            <div class="fs-6">Comptes Actifs</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-around small">
+                    <span><strong>DIW:</strong> @Model.TotalDiwUsers</span>
+                    <span><strong>DRI:</strong> @Model.TotalDriUsers</span>
+                    <span><strong>DC:</strong> @Model.TotalDcUsers</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-md-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-title">Répartition des DIW par DRI</h6>
+                    <ul class="list-group list-group-flush" style="max-height: 150px; overflow-y: auto;">
+                        @foreach (var item in Model.DiwCountByDri)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @item.Key
+                                <span class="badge bg-primary rounded-pill">@item.Value</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-4">Alertes de Situations Manquantes (@Model.PeriodChecked)</h3>
+    <hr />
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white"><i class="fas fa-exclamation-triangle me-1"></i> DC avec situations manquantes</div><div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    @if (!Model.MissingDcSituationNames.Any())
+                    {
+                        <div class="alert alert-success mb-0">Toutes les situations des DC ont été soumises.</div>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @* Loop through the simple list of names *@
+                            @foreach (var structureName in Model.MissingDcSituationNames)
+                            {
+                                <li class="list-group-item">@structureName</li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-warning"><i class="fas fa-sitemap me-1"></i> Synthèse par DRI</div><div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    @if (!Model.MissingDriSituations.Any())
+                    {
+                        <div class="alert alert-success mb-0">Aucune situation manquante pour les DRI.</div>
+                    }
+                    else
+                    {
+                        <div class="accordion" id="driAccordion">
+                            @foreach (var driAlert in Model.MissingDriSituations)
+                            {
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading-@driAlert.DriName.Replace(" ", "")"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@driAlert.DriName.Replace(" ", "")" aria-expanded="false">@driAlert.DriName <span class="badge bg-danger ms-2">@driAlert.MissingDiwNames.Count Manquant(s)</span></button></h2><div id="collapse-@driAlert.DriName.Replace(" ", "")" class="accordion-collapse collapse" data-bs-parent="#driAccordion">
+                                        <div class="accordion-body">
+                                            <ul class="list-unstyled">
+                                                @foreach (var diwName in driAlert.MissingDiwNames)
+                                                {
+                                                    <li><i class="fas fa-caret-right me-2"></i>@diwName</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Performance Opérationnelle Globale (DIW)
+                </div>
+                <div class="card-body">
+                    <select id="op-chart-filter" class="form-select form-select-sm mb-2">
+                        <option value="all">-- Tous les indicateurs --</option>
+                        @foreach (var label in Model.OperationalChartData.Labels)
+                        {
+                            <option value="@label">@label</option>
+                        }
+                    </select>
+                    <canvas id="operationalChart" width="150%" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Performance Stratégique Globale (DC)
+                </div>
+                <div class="card-body">
+                    <select id="strat-chart-filter" class="form-select form-select-sm mb-2">
+                        <option value="all">-- Tous les indicateurs --</option>
+                        @foreach (var label in Model.StrategicChartData.Labels)
+                        {
+                            <option value="@label">@label</option>
+                        }
+                    </select>
+                    <canvas id="strategicChart" width="150%" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // --- PARTIE 1: NOUVELLE LOGIQUE DE FILTRAGE ---
+            function updateAdminChart(chart, originalData, selectedIndicator) {
+                if (selectedIndicator === 'all') {
+                    chart.data.labels = originalData.labels;
+                    chart.data.datasets[0].data = originalData.data;
+                } else {
+                    const index = originalData.labels.indexOf(selectedIndicator);
+                    if (index > -1) {
+                        chart.data.labels = [originalData.labels[index]];
+                        chart.data.datasets[0].data = [originalData.data[index]];
+                    }
+                }
+                chart.update();
+            }
+
+            // --- PARTIE 2: INITIALISATION DES GRAPHIQUES (PRÉSERVÉE ET AMÉLIORÉE) ---
+
+            // --- Graphique Opérationnel ---
+            const opLabels = @Html.Raw(Json.Serialize(Model.OperationalChartData.Labels));
+            const opData = @Html.Raw(Json.Serialize(Model.OperationalChartData.Data));
+            const originalOpData = { labels: opLabels, data: opData };
+            const ctxOp = document.getElementById('operationalChart');
+            if (ctxOp) {
+                const opChart = new Chart(ctxOp, {
+                    type: 'bar',
+                    data: {
+                        labels: originalOpData.labels,
+                        datasets: [{
+                            label: 'Taux de Réalisation (%)',
+                            data: originalOpData.data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        scales: { x: { beginAtZero: true, ticks: { callback: function (value) { return value + "%" } } } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: function (context) { return ' Taux: ' + context.raw.toFixed(2) + '%'; } } }
+                        }
+                    }
+                });
+
+                // Ajout de l'écouteur d'événement pour le filtre
+                document.getElementById('op-chart-filter').addEventListener('change', function () {
+                    updateAdminChart(opChart, originalOpData, this.value);
+                });
+            }
+
+            // --- Graphique Stratégique ---
+            const stratLabels = @Html.Raw(Json.Serialize(Model.StrategicChartData.Labels));
+            const stratData = @Html.Raw(Json.Serialize(Model.StrategicChartData.Data));
+            const originalStratData = { labels: stratLabels, data: stratData };
+            const ctxStrat = document.getElementById('strategicChart');
+            if (ctxStrat) {
+                const stratChart = new Chart(ctxStrat, {
+                    type: 'bar',
+                    data: {
+                        labels: originalStratData.labels,
+                        datasets: [{
+                            label: 'Taux de Réalisation (%)',
+                            data: originalStratData.data,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        scales: { x: { beginAtZero: true, ticks: { callback: function (value) { return value + "%" } } } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: function (context) { return ' Taux: ' + context.raw.toFixed(2) + '%'; } } }
+                        }
+                    }
+                });
+
+                // Ajout de l'écouteur d'événement pour le filtre
+                document.getElementById('strat-chart-filter').addEventListener('change', function () {
+                    updateAdminChart(stratChart, originalStratData, this.value);
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,123 @@
+﻿@model Stat.Models.ViewModels.GestionObjectifsViewModel
+@{
+    ViewData["Title"] = "Gestion des Objectifs Stratégiques";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Gestion des Objectifs</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header"><i class="fas fa-plus me-1"></i>Ajouter un nouvel Objectif</div>
+        <div class="card-body">
+            <form asp-action="AddObjectif" method="post" class="row g-3">
+                @Html.AntiForgeryToken()
+                <div class="col-md-4">
+                    <label class="form-label">Axe Parent</label>
+                    <select name="idCategIn" asp-items="Model.AxesOptions" class="form-select" required>
+                        <option value="">-- Choisir un Axe --</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Intitulé de l'Objectif</label>
+                    <input type="text" name="intituleobj" class="form-control" required />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><i class="fas fa-list me-1"></i>Liste des Objectifs Existants</div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Intitulé</th>
+                        <th>Axe Parent</th>
+                        <th style="width: 150px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Objectifs)
+                    {
+                        <tr>
+                            <td>
+                                <span id="label-@item.IdObjectif">@item.IntituleObjectif</span>
+                                <input type="text" id="input-@item.IdObjectif" value="@item.IntituleObjectif" class="form-control d-none" />
+                            </td>
+                            <td>@item.AxeName</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning btn-edit" data-id="@item.IdObjectif">Renommer</button>
+                                <button class="btn btn-sm btn-success btn-save d-none" data-id="@item.IdObjectif">Sauver</button>
+
+                                <form asp-action="DeleteObjectif" asp-route-id="@item.IdObjectif" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet objectif ?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    document.getElementById(`label-${id}`).classList.add('d-none');
+                    document.getElementById(`input-${id}`).classList.remove('d-none');
+                    this.classList.add('d-none');
+                    this.closest('td').querySelector('.btn-save').classList.remove('d-none');
+                });
+            });
+
+            document.querySelectorAll('.btn-save').forEach(button => {
+                button.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const intitule = document.getElementById(`input-${id}`).value;
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                    fetch(`/Admin/EditObjectif?id=${id}&intitule=${encodeURIComponent(intitule)}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        }
+                    }).then(response => response.json()).then(data => {
+                        if (data.success) {
+                            document.getElementById(`label-${id}`).textContent = intitule;
+                            document.getElementById(`label-${id}`).classList.remove('d-none');
+                            document.getElementById(`input-${id}`).classList.add('d-none');
+                            this.classList.add('d-none');
+                            this.closest('td').querySelector('.btn-edit').classList.remove('d-none');
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

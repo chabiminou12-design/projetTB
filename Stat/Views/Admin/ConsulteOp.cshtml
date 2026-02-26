@@ -1,0 +1,63 @@
+﻿@model List<CategoryIndicatorGroup>
+@{
+    var situation = ViewBag.Situation as Situation;
+    ViewData["Title"] = $"Détails: Situation {situation.Month} {situation.Year}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <h4 class="text-muted">Structure: @situation.DIWNavigation?.LibelleDIW</h4>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="ListValidatedSituations">Situations Validées</a></li>
+        <li class="breadcrumb-item active">Détails Opérationnels</li>
+    </ol>
+
+    <div class="d-flex justify-content-end mb-3 gap-2">
+        <a asp-controller="@ViewBag.CurrentController" asp-action="ExportToExcel" asp-route-id="@situation.IDSituation" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Exporter vers Excel
+        </a>
+        <a asp-controller="@ViewBag.CurrentController" asp-action="ExportToPdf" asp-route-id="@situation.IDSituation" class="btn btn-danger">
+            <i class="fas fa-file-pdf"></i> Exporter vers PDF
+        </a>
+    </div>
+
+    @foreach (var group in Model)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-chart-bar me-1"></i>
+                Axe: @group.CategoryName
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Indicateur</th>
+                                <th>Numérateur</th>
+                                <th>Dénominateur</th>
+                                <th>Taux (%)</th>
+                                <th>Cible (%)</th>
+                                <th>Écart (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dec in group.Declarations)
+                            {
+                                <tr>
+                                    <td>@dec.Indicateur.IntituleIn</td>
+                                    <td class="text-center">@dec.Numerateur</td>
+                                    <td class="text-center">@dec.Denominateur</td>
+                                    <td class="text-center">@dec.taux?.ToString("F2")</td>
+                                    <td class="text-center">@dec.Cible?.ToString("F2")</td>
+                                    <td class="text-center">@dec.ecart?.ToString("F2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

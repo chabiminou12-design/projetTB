@@ -1,0 +1,220 @@
+﻿@model Stat.Models.ViewModels.NiveauOpViewModel
+@{
+    ViewData["Title"] = "Analyse - Niveau Opérationnel";
+    Layout = "~/Views/Shared/_Layout1.cshtml";
+}
+
+<style>
+    .sticky-top-filters {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background-color: #f8f9fa;
+    }
+
+    #operationalTable thead {
+        position: sticky;
+        z-index: 1010;
+        background-color: white;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+        <li class="breadcrumb-item active">Analyse Opérationnelle</li>
+    </ol>
+
+    <div id="filter-card" class="card mb-4 animated-fade-in sticky-top-filters">
+        <div class="card-header">
+            <i class="fas fa-filter"></i> Filtres
+        </div>
+        <div class="card-body">
+            <form id="filterForm" asp-action="NiveauOperationnel" method="get" class="row g-3">
+                <div class="col-md-3"><select asp-for="SelectedYear" asp-items="Model.YearOptions" class="form-select auto-submit"><option value="">-- Année --</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedSemester" class="form-select auto-submit" id="semesterSelect"><option value="">-- Semestre --</option><option value="1">1er Semestre</option><option value="2">2ème Semestre</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedTrimester" class="form-select auto-submit" id="trimesterSelect"><option value="">-- Trimestre --</option><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option></select></div>
+                <div class="col-md-3">
+                    <select asp-for="SelectedMonth" class="form-select auto-submit" id="monthSelect">
+                        <option value="">-- Mois --</option>@for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3"><select asp-for="SelectedAxe" asp-items="Model.AxeOptions" class="form-select" id="axeSelect"><option value="">-- Axe --</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedIndicateur" asp-items="Model.IndicateurOptions" class="form-select auto-submit" id="indicatorSelect"><option value="">-- Indicateur --</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedDri" asp-items="Model.DriOptions" class="form-select" id="driSelect"><option value="">-- DRI --</option></select></div>
+                <div class="col-md-3"><select asp-for="SelectedDiw" asp-items="Model.DiwOptions" class="form-select auto-submit" id="diwSelect" disabled="@(string.IsNullOrEmpty(Model.SelectedDri))"><option value="">-- DIW --</option></select></div>
+                @* REPLACE the div containing the reset button (Line 97 in your uploaded file) with this: *@
+                <div class="col-md-3 d-flex gap-2">
+                    <a asp-action="NiveauOperationnel" class="btn btn-secondary flex-grow-1"><i class="fas fa-sync-alt"></i> Réinitialiser</a>
+                    <button type="submit" asp-action="ExportNiveauOperationnel" class="btn btn-success flex-grow-1" disabled="@(Model.IsSearchPerformed ? null : "disabled")">
+                        <i class="fas fa-file-excel"></i> Exporter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card animated-fade-in">
+        <div class="card-body">
+            @if (!Model.IsSearchPerformed)
+            {
+                <div class="alert alert-info text-center">Veuillez sélectionner au moins une <strong>DRI</strong> pour lancer l'analyse.</div>
+            }
+            else
+            {
+                <table id="operationalTable" class="table table-hover professional-table" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Axe</th>
+                            <th>Indicateur</th>
+                            <th class="text-center">Numérateur</th>
+                            <th class="text-center">Dénominateur</th>
+                            <th class="text-center">Taux Réalisé (%)</th>
+                            @if (!string.IsNullOrEmpty(Model.SelectedDiw))
+                            {
+                                <th class="text-center">Cible (%)</th>
+                                <th class="text-center">Écart (%)</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.PerformanceResults)
+                        {
+                            <tr>
+                                <td>@item.AxeName</td>
+                                <td>@item.IndicatorName</td>
+                                <td class="text-center">@item.SumNumerateur.ToString("N0")</td>
+                                <td class="text-center">@item.SumDenominateur.ToString("N0")</td>
+                                <td class="text-center">@item.Taux.ToString("F2")</td>
+                                @if (!string.IsNullOrEmpty(Model.SelectedDiw))
+                                {
+                                    <td class="text-center">@item.Cible.ToString("F2")</td>
+                                
+                                    <td class="text-center">
+                                        @if (item.Ecart >= 0)
+                                        {
+                                            <div class="ecart-cell ecart-positive">
+                                                <i class="fas fa-arrow-up ecart-icon"></i>
+                                                <span>@item.Ecart.ToString("F2")</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="ecart-cell ecart-negative">
+                                                <i class="fas fa-arrow-down ecart-icon"></i>
+                                                <span>@item.Ecart.ToString("F2")</span>
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterCard = document.getElementById('filter-card');
+            const tableHeader = document.querySelector('#operationalTable thead');
+
+            if (filterCard && tableHeader) {
+                const setTableHeaderPosition = () => {
+                    const filterCardHeight = filterCard.offsetHeight;
+                    tableHeader.style.top = filterCardHeight + 'px';
+                };
+                setTableHeaderPosition();
+                window.addEventListener('resize', setTableHeaderPosition);
+            }
+        });
+    </script>
+    <script>
+        // Existing script for filters - NO CHANGES NEEDED HERE
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterForm = document.getElementById('filterForm');
+            const driSelect = document.getElementById('driSelect');
+            const axeSelect = document.getElementById('axeSelect');
+            const indicatorSelect = document.getElementById('indicatorSelect');
+            const semesterSelect = document.getElementById('semesterSelect');
+            const trimesterSelect = document.getElementById('trimesterSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            function updateDateFilters() {
+                const semester = semesterSelect.value; const trimester = trimesterSelect.value;
+                Array.from(trimesterSelect.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    let show = true;
+                    if (semester === '1' && !(opt.value === '1' || opt.value === '2')) show = false;
+                    if (semester === '2' && !(opt.value === '3' || opt.value === '4')) show = false;
+                    opt.style.display = show ? '' : 'none';
+                });
+                Array.from(monthSelect.options).forEach(opt => {
+                    if (opt.value === "") return;
+                    let show = true;
+                    const month = parseInt(opt.value);
+                    if (trimester) {
+                        if (trimester === '1' && !(month >= 1 && month <= 3)) show = false;
+                        if (trimester === '2' && !(month >= 4 && month <= 6)) show = false;
+                        if (trimester === '3' && !(month >= 7 && month <= 9)) show = false;
+                        if (trimester === '4' && !(month >= 10 && month <= 12)) show = false;
+                    } else if (semester) {
+                        if (semester === '1' && !(month >= 1 && month <= 6)) show = false;
+                        if (semester === '2' && !(month >= 7 && month <= 12)) show = false;
+                    }
+                    opt.style.display = show ? '' : 'none';
+                });
+            }
+            semesterSelect.addEventListener('change', function () {
+                trimesterSelect.value = ""; monthSelect.value = "";
+                updateDateFilters();
+            });
+            trimesterSelect.addEventListener('change', function () {
+                monthSelect.value = "";
+                updateDateFilters();
+            });
+            document.querySelectorAll('.auto-submit').forEach(select => {
+                select.addEventListener('change', function () { filterForm.submit(); });
+            });
+            driSelect.addEventListener('change', function () { filterForm.submit(); });
+            axeSelect.addEventListener('change', function () {
+                const axeId = this.value;
+                indicatorSelect.disabled = true;
+                indicatorSelect.innerHTML = '<option>Chargement...</option>';
+                fetch(`/Admin/GetIndicatorsByAxe?axeId=${axeId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        indicatorSelect.innerHTML = '<option value="">-- Indicateur --</option>';
+                        data.forEach(indicator => { indicatorSelect.innerHTML += `<option value="${indicator.value}">${indicator.text}</option>`; });
+                        indicatorSelect.disabled = false;
+                        filterForm.submit();
+                    });
+            });
+            updateDateFilters();
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#operationalTable').DataTable({
+                language: { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json" },
+                responsive: true,
+                "ordering": true,
+                "paging": false, // Désactive la pagination
+                "info": false,
+                "columnDefs": [
+                    { "visible": false, "targets": 0 }
+                ],
+                rowGroup: {
+                    dataSrc: 0
+                },
+                "order": [[0, 'asc']]
+            });
+        });
+    </script>
+}

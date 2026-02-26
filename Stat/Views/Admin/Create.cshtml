@@ -1,0 +1,215 @@
+﻿@model Stat.Models.ModeleOrgViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Dashboard - SB ADMINISTRATEUR</title>
+    <link href="~/css/style.min.css" rel="stylesheet" />
+    <link href="~/css/styles.css" rel="stylesheet" />
+    <link href="~/css/style.css" rel="stylesheet" />
+    <script src="~/js/all.js" crossorigin="anonymous"></script>
+
+</head>
+<body class="sb-nav-fixed" onbeforeunload="return 'Etes-vous sur de vouloir quitter cette page ?';">
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <!-- Navbar Brand-->
+        <a class="navbar-brand ps-3" href="index.html">Bienvenu Mr. ADMIN</a>
+        <!-- Sidebar Toggle-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+        <!-- Navbar Search-->
+      
+        <!-- Navbar-->
+
+        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                @* <form asp-controller="Access" asp-action="LogOut" method="post"> *@
+                @Html.AntiForgeryToken()
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                   @*  <li><a class="dropdown-item" href="#!">Settings</a></li>
+                    <li><a class="dropdown-item" href="#!">Activity Log</a></li> *@
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit()"></a></li>
+                    <button class="form-control" type="submit">Logout</button>
+                    @if (ViewData["ValidateMessage"] != null)
+                    {
+                        <br />
+                        <br />
+                        <label>@ViewData["ValidateMessage"]</label>
+                    }
+                </ul>
+                @*  </form> *@
+            </li>
+        </ul>
+
+    </nav>
+
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+          
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+
+                        <!-- ACCUEIL -->
+                        <div class="sb-sidenav-menu-heading">Accueil</div>
+                        <a class="nav-link" asp-controller="Admin" asp-action="#">
+                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            Tableau de bord
+                        </a>
+
+                        <!-- GESTION DRI/DIW -->
+                        <div class="sb-sidenav-menu-heading">Organisation</div>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDRIDIW" aria-expanded="false" aria-controls="collapseDRIDIW">
+                            <div class="sb-nav-link-icon"><i class="fas fa-sitemap"></i></div>
+                            Gestion DRI / DIW
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseDRIDIW" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Create">Ajouter un DRI</a>
+                                <a class="nav-link" asp-controller="Admin" asp-action="AddDIW">Ajouter un DIW</a>
+                            </nav>
+                        </div>
+
+                        <!-- UTILISATEURS -->
+                        <div class="sb-sidenav-menu-heading">Pilotage</div>
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                            Gestion des Utilisateurs
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseUsers" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" asp-controller="Admin" asp-action="AddUser">Ajouter un utilisateur</a>
+                               
+                            </nav>
+                        </div>
+
+                        <!-- INDICATEURS -->
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseIndicateurs" aria-expanded="false" aria-controls="collapseIndicateurs">
+                            <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
+                            Gestion des Indicateurs
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseIndicateurs" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" asp-controller="Indicateur" asp-action="Create">Ajouter un indicateur</a>
+                              
+                            </nav>
+                        </div>
+
+                        <!-- CONTACT & MANUEL -->
+                        <div class="sb-sidenav-menu-heading">Assistance</div>
+                        <a class="nav-link" asp-controller="Support" asp-action="Manuel">
+                            <div class="sb-nav-link-icon"><i class="fas fa-book"></i></div>
+                            Manuel utilisateur
+                        </a>
+                        <a class="nav-link" asp-controller="Support" asp-action="Contact">
+                            <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
+                            Espace contact
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="sb-sidenav-footer">
+                    <div class="small">Connecté en tant que :</div>
+                    Administrateur
+                </div>
+            </nav>
+        </div>
+       
+        <div id="layoutSidenav_content">
+            <main class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 col-xl-6">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h5 class="mb-0">Créer une Direction Régionale (DRI)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Formulaire de création -->
+                                    <form asp-controller="Admin" asp-action="CreateDri" method="post">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label asp-for="dri.CodeDRI" class="form-label">Code DRI</label>
+                                                <input asp-for="dri.CodeDRI" class="form-control" placeholder="Ex: 0016G00" />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="dri.LibelleDRI" class="form-label">Libellé DRI</label>
+                                                <input asp-for="dri.LibelleDRI" class="form-control" placeholder="Ex: DRI Alger" />
+                                            </div>
+                                        </div>
+                                         <div class="text-center mt-4"> 
+                                            <button type="submit" class="btn btn-success px-4">
+                                                <i class="fas fa-save me-1"></i> Enregistrer
+                                            </button>
+                                         </div> 
+                                    </form>
+
+                                    <hr class="my-4" />
+
+                                    <!-- Détails -->
+                                    <form asp-controller="Admin" asp-action="listdri" method="post">
+                                        <div class="text-center">
+                                            <button type="submit" class="btn btn-outline-primary px-4">
+                                                <i class="fas fa-list me-1"></i> Voir la liste des DRI
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <a asp-controller="Admin" asp-action="Index" class="btn btn-primary me-2">Retour a la page</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </main>
+      
+
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">
+                            Copyright &copy; WebStat
+                            <span id="currentYear"></span>
+                        </div>
+                        <div>
+                                <a href="#">Privacy Policy</a>
+                            &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <script>
+                document.getElementById("currentYear").textContent = new Date().getFullYear();
+            </script>
+        </div>
+    </div>
+    <script src="~/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="~/js/scripts.js"></script>
+    <script src="~/js/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="~/assets/demo/chart-area-demo.js"></script>
+    <script src="~/assets/demo/chart-bar-demo.js"></script>
+    <script src="~/js/simple-datatables.min.js" crossorigin="anonymous"></script>
+    <script src="~/js/datatables-simple-demo.js"></script>
+    <script src="~/assets/demo/chart-area-demo.js"></script>
+    <script src="~/assets/demo/chart-bar-demo.js"></script>
+    <script src="~/assets/demo/chart-pie-demo.js"></script>
+    <script src="~/js/demo/chart-pie-demo.js"></script>
+
+</body>
+</html>

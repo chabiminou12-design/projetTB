@@ -1,0 +1,53 @@
+﻿@model Stat.Models.DIW
+@{
+    ViewData["Title"] = "Ajouter une DIW";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="listdiw">Liste des DIWs</a></li>
+        <li class="breadcrumb-item active">Ajouter</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="AddDIW" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label class="form-label">Direction Régionale (DRI)</label>
+                    <select name="CodeDRI" class="form-select" asp-items="@(new SelectList(ViewBag.DRIs, "CodeDRI", "LibelleDRI"))" id="driSelect" required>
+                        <option value="">-- Sélectionnez une DRI --</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CodeDIW" class="form-label"></label>
+                    <input asp-for="CodeDIW" class="form-control" id="diwCodeInput" disabled required/>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="LibelleDIW" class="form-label"></label>
+                    <input asp-for="LibelleDIW" class="form-control" required/>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Ajouter la DIW</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('driSelect').addEventListener('change', function () {
+            const diwCodeInput = document.getElementById('diwCodeInput');
+            if (this.value) {
+                diwCodeInput.disabled = false;
+            } else {
+                diwCodeInput.disabled = true;
+            }
+        });
+    </script>
+}

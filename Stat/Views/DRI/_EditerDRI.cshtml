@@ -1,0 +1,302 @@
+﻿@model IEnumerable<Stat.Models.Situation>
+@{
+    ViewData["Title"] = "Gestion des Situations DRI";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // --- NOUVEAU BLOC DE LOGIQUE DATE ---
+    var currentYear = DateTime.Now.Year;
+    var currentMonth = DateTime.Now.Month; // Numéro du mois
+    var currentCulture = new System.Globalization.CultureInfo("fr-FR");
+
+    // Crée une liste d'années de 2025 (ou l'année en cours si < 2025) jusqu'à l'année en cours.
+    var baseYear = 2025;
+    if (baseYear > currentYear) { baseYear = currentYear; }
+
+    var yearList = Enumerable.Range(baseYear, currentYear - baseYear + 1)
+                            .Select(y => new SelectListItem
+                                    {
+                                        Text = y.ToString(),
+                                        Value = y.ToString()
+                                    })
+                            .OrderByDescending(y => y.Value) // Affiche l'année en cours en premier
+                            .ToList();
+
+    // La variable 'years' sera utilisée dans le tag-helper asp-items
+    var years = new SelectList(yearList, "Value", "Text", currentYear);
+
+
+    // --- Logique pour les Mois (pour le chargement initial) ---
+    // Au chargement, l'année en cours est sélectionnée,
+    // donc on affiche seulement les mois jusqu'au mois actuel.
+    var initialMonths = Enumerable.Range(1, currentMonth) // Va de 1 au mois actuel
+        .Select(m =>
+        {
+            var monthName = currentCulture.DateTimeFormat.GetMonthName(m);
+            // Met la première lettre en majuscule
+            monthName = char.ToUpper(monthName[0]) + monthName.Substring(1);
+            return new SelectListItem
+                    {
+                        Text = monthName,
+                        Value = monthName // Utilise le nom comme valeur
+                    };
+        }).ToList();
+
+    // La variable 'months' sera utilisée dans le tag-helper asp-items
+    var months = new SelectList(initialMonths, "Value", "Text");
+
+    // --- Préparation pour JavaScript ---
+    // Crée une liste JSON de TOUS les mois que le JavaScript utilisera
+    var allMonthsJson = System.Text.Json.JsonSerializer.Serialize(
+        Enumerable.Range(1, 12).Select(m =>
+        {
+            var monthName = currentCulture.DateTimeFormat.GetMonthName(m);
+            return char.ToUpper(monthName[0]) + monthName.Substring(1);
+        }).ToList()
+    );
+    // --- FIN DU NOUVEAU BLOC ---
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Saisie des Indicateurs de Performance Opérationnels</li>
+    </ol>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-plus-circle me-1"></i>
+            Créer une Nouvelle Situation
+        </div>
+        <div class="card-body">
+
+            <form asp-controller="DRI" asp-action="CreerSituationDRI" method="post">
+                @Html.AntiForgeryToken()
+                <div class="row align-items-end">
+                    <div class="col-md-2">
+                        <label for="monthSelect" class="form-label">Mois</label>
+                        @* MODIFIÉ: Utilise la variable 'months' et un 'id' *@
+                        <select name="month" id="monthSelect" class="form-select" asp-items="months" required><option value="">Sélectionnez un mois</option></select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="yearSelect" class="form-label">Année</label>
+                        @* MODIFIÉ: Utilise la variable 'years' et un 'id' *@
+                        <select name="year" id="yearSelect" class="form-select" asp-items="years" required><option value="">Sélectionnez l'année</option></select>
+                    </div>
+                    <div class="col-md-2"><div class="d-grid"><button type="submit" class="btn btn-primary">Ajouter Situation</button></div></div>
+                </div>
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-list-alt me-1"></i>
+            Historique des Situations
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" class="table table-striped table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Période</th>
+                        <th>Date de Création</th>
+                        <th>Statut</th>
+                        <th class="text-center" data-sortable="false" data-searchable="false">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var situation in Model.OrderBy(s => s.Statut == 2 ? 0 : 1).ThenByDescending(s => s.CreateDate))
+                    {
+                        <tr>
+                            <td><strong>@situation.Month @situation.Year</strong></td>
+                            <td>@situation.CreateDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @switch (situation.Statut)
+                                {
+                                    case 0:
+                                        <span class="badge bg-warning text-dark">En cours</span>
+                                        break;
+                                    case 1:
+                                        <span class="badge bg-primary">Soumis pour validation</span>
+                                        break; // Semicolon removed
+                                    case 2:
+                                        <span class="badge bg-danger">Rejeté</span>
+                                        break; // Semicolon removed
+                                    case 3:
+                                        <span class="badge bg-success">Validé</span>
+                                        break; // Semicolon removed
+                                    default:
+                                        <span class="badge bg-secondary">Inconnu</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="text-center">
+                                @* WRAPPER DIV: Keeps buttons together during pagination *@
+                                <div class="d-flex justify-content-center gap-1">
+
+                                    @if (situation.Statut == 0 || situation.Statut == 2)
+                                    {
+                                        <a asp-controller="DRI" asp-action="SaisirSituation" asp-route-id="@situation.IDSituation" class="btn btn-sm btn-outline-primary" title="Modifier">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </a>
+                                    }
+
+                                    @if (situation.Statut == 0)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@situation.IDSituation">
+                                            <i class="fas fa-trash-alt"></i> Supprimer
+                                        </button>
+                                    }
+
+                                    @if (situation.Statut == 1 || situation.Statut == 3)
+                                    {
+                                        <a asp-controller="DRI" asp-action="ConsulterSituation" asp-route-id="@situation.IDSituation" class="btn btn-sm btn-outline-info" title="Consulter">
+                                            <i class="fas fa-eye"></i> Consulter
+                                        </a>
+                                    }
+
+                                    @if (situation.Statut == 3)
+                                    {
+                                        <a asp-controller="DRI" asp-action="ExportToExceldri" asp-route-id="@situation.IDSituation" class="btn btn-success btn-sm" title="Excel">
+                                            <i class="fas fa-file-excel"></i> Excel
+                                        </a>
+                                        <a asp-controller="DRI" asp-action="ExportToPdfdri" asp-route-id="@situation.IDSituation" class="btn btn-danger btn-sm" title="PDF">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmation de Suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer définitivement cette situation ?
+                Cette action est irréversible.
+            </div>
+            <div class="modal-footer">
+                <form asp-controller="DRI" asp-action="DeleteSituationDRI" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="situationIdToDelete" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Confirmer la Suppression</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        window.addEventListener('DOMContentLoaded', event => {
+            const datatablesSimple = document.getElementById('datatablesSimple');
+            if (datatablesSimple) {
+                // Initialize with advanced options to prevent the "5-row" bug
+                new simpleDatatables.DataTable(datatablesSimple, {
+                    perPage: 10,
+                    perPageSelect: [10, 15, 25, 50], // Removing '5' fixes the recycling edge-case
+                    columns: [
+                        // Disable sorting/searching on column index 3 (Actions)
+                        { select: 3, sortable: false, searchable: false }
+                    ],
+                    labels: {
+                        placeholder: "Rechercher...",
+                        perPage: "{select} situations par page",
+                        noRows: "Aucune situation trouvée",
+                        info: "Affichage de {start} à {end} sur {rows} situations",
+                    }
+                });
+            }
+
+            // JavaScript pour passer l'ID à la modal de suppression
+            const deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                const button = event.relatedTarget;
+                // Extract info from data-id attribute
+                const situationId = button.getAttribute('data-id');
+                // Update the modal's hidden input
+                const modalInput = deleteModal.querySelector('#situationIdToDelete');
+                modalInput.value = situationId;
+            });
+
+
+            // ✨ NOUVEAU BLOC AJOUTÉ : Logique dynamique Mois/Année ✨
+
+            // 1. Récupérer les données de C#
+            const allMonths = @Html.Raw(allMonthsJson); // ["Janvier", "Février", ...]
+            const cYear = @currentYear;
+            const cMonthIndex = @currentMonth - 1; // Index JS (0 = Janvier)
+
+            // 2. Cibler les listes déroulantes
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+
+            if (yearSelect && monthSelect) {
+
+                // 3. Fonction pour mettre à jour la liste des mois
+                function updateMonthOptions() {
+                    const selectedYear = parseInt(yearSelect.value);
+                    const selectedMonthValue = monthSelect.value;
+
+                    // Vider la liste des mois
+                    monthSelect.innerHTML = '';
+
+                    let monthsToShow = [];
+
+                    if (selectedYear === cYear) {
+                        // Année en cours : Affiche les mois jusqu'au mois actuel
+                        monthsToShow = allMonths.slice(0, cMonthIndex + 1);
+                    } else {
+                        // Année passée : Affiche tous les 12 mois
+                        monthsToShow = allMonths;
+                    }
+
+                    // 4. Remplir avec les nouvelles options
+                    monthsToShow.forEach(function (monthName) {
+                        const option = document.createElement('option');
+                        option.value = monthName;
+                        option.text = monthName;
+
+                        // Resélectionne le mois s'il était déjà choisi
+                        if (monthName === selectedMonthValue) {
+                            option.selected = true;
+                        }
+                        monthSelect.appendChild(option);
+                    });
+                }
+
+                // 5. Attacher l'écouteur d'événement
+                yearSelect.addEventListener('change', updateMonthOptions);
+            }
+            // ✨ FIN DU BLOC AJOUTÉ ✨
+        });
+    </script>
+}

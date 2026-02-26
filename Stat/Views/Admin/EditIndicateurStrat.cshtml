@@ -1,0 +1,82 @@
+﻿@model Stat.Models.ViewModels.EditIndicateurStratViewModel
+@{
+    ViewData["Title"] = "Modifier l'Indicateur Stratégique";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="ListIndicateursStrat">Liste des Indicateurs Stratégiques</a></li>
+        <li class="breadcrumb-item active">Modifier</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="EditIndicateurStrat" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" asp-for="Indicateur.IdIndic" />
+
+                <div class="mb-3">
+                    <label class="form-label">ID de l'Indicateur</label>
+                    <input class="form-control" value="@Model.Indicateur.IdIndic" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Indicateur.IntituleIn" class="form-label">Intitulé</label>
+                    <input asp-for="Indicateur.IntituleIn" class="form-control" />
+                    <span asp-validation-for="Indicateur.IntituleIn" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Indicateur.IdCategIn" class="form-label">Axe (Catégorie)</label>
+                    <select asp-for="Indicateur.IdCategIn" asp-items="Model.AxeOptions" class="form-select" id="categorySelect"></select>
+                    <span asp-validation-for="Indicateur.IdCategIn" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Indicateur.idobj" class="form-label">Objectif</label>
+                    <select asp-for="Indicateur.idobj" asp-items="Model.ObjectifOptions" class="form-select" id="objectiveSelect"></select>
+                    <span asp-validation-for="Indicateur.idobj" class="text-danger"></span>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                    <a asp-action="ListIndicateursStrat" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorySelect = document.getElementById('categorySelect');
+            const objectiveSelect = document.getElementById('objectiveSelect');
+
+            categorySelect.addEventListener('change', function () {
+                const categoryId = this.value;
+                objectiveSelect.disabled = true;
+                objectiveSelect.innerHTML = '<option>Chargement...</option>';
+
+                if (!categoryId) {
+                    objectiveSelect.innerHTML = '<option value="">-- Sélectionner d\'abord une catégorie --</option>';
+                    return;
+                }
+
+                fetch(`/Admin/GetObjectifsByAxeJson?axeId=${categoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        objectiveSelect.innerHTML = '<option value="">-- Sélectionner un objectif --</option>';
+                        data.forEach(obj => {
+                            objectiveSelect.innerHTML += `<option value="${obj.value}">${obj.text}</option>`;
+                        });
+                        objectiveSelect.disabled = false;
+                    });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,100 @@
+﻿@model IEnumerable<Stat.Models.Situation>
+@{
+    ViewData["Title"] = "Révision des Situations DIW";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">@ViewData["Title"]</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">Tableau de Bord</a></li>
+        <li class="breadcrumb-item active">Liste des Situations</li>
+    </ol>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Toutes les situations soumises par les DIWs
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>DIW</th>
+                        <th>Période</th>
+                        <th>Date de Soumission</th>
+                        <th>Statut</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.DIWNavigation?.LibelleDIW</td>
+                            <td>@item.Month @item.Year</td>
+
+                            <td>@(item.CreateDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+
+                            <td>
+                                @switch (item.Statut)
+                                {
+                                    case 0:
+                                        <span class="badge bg-secondary">En Création (DIW)</span>
+                                        break;
+                                    case 1:
+                                        <span class="badge bg-warning text-dark">En Attente de Validation</span>
+                                        break;
+                                    case 2:
+                                        <span class="badge bg-danger">Rejeté</span>
+                                        break;
+                                    case 3:
+                                        <span class="badge bg-success">Validé</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a asp-controller="DRI" asp-action="ReviewSituation" asp-route-id="@item.IDSituation" class="btn btn-primary btn-sm">Réviser</a>
+
+                                @if (item.Statut == 3)
+                                {
+                                    <a asp-controller="DRI" asp-action="ExportToExcel" asp-route-id="@item.IDSituation" class="btn btn-success btn-sm me-2" title="Télécharger en Excel">
+                                        <i class="fas fa-file-excel">Télécharger en Excel</i>
+                                    </a>
+                                    <a asp-controller="DRI" asp-action="ExportToPdf" asp-route-id="@item.IDSituation" class="btn btn-danger btn-sm" title="Télécharger en PDF">
+                                        <i class="fas fa-file-pdf">Télécharger en PDF</i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/umd/simple-datatables.js" crossorigin="anonymous"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', event => {
+            const datatablesSimple = document.getElementById('datatablesSimple');
+            if (datatablesSimple) {
+                new simpleDatatables.DataTable(datatablesSimple);
+            }
+        });
+    </script>
+}

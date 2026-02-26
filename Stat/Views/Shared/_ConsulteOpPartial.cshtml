@@ -1,0 +1,17 @@
+﻿@model List<CategoryIndicatorGroup>
+@inject Stat.Models.Situation situation
+
+<div class="d-flex justify-content-end mb-3 gap-2">
+    <a asp-controller="Admin" asp-action="ExportToExcel" asp-route-id="@situation.IDSituation" class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Exporter vers Excel
+    </a>
+    <a asp-controller="Admin" asp-action="ExportToPdf" asp-route-id="@situation.IDSituation" class="btn btn-danger">
+        <i class="fas fa-file-pdf"></i> Exporter vers PDF
+    </a>
+</div>
+
+@foreach (var group in Model)
+{
+    <div class="card mb-4">
+    </div>
+}
